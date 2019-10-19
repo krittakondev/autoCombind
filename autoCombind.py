@@ -62,18 +62,21 @@ class run_program(GUI):
         writer.write(saveTo)  
         writer.write("log/"+datetime.datetime.now().strftime("%y%m%d_%S%M%H.pdf"))
         return saveTo
-    def onclick_seFile(self):
+    def onclick_seFile(self, event=""):
         files = self.fileSelect()
         self.list_filename = files
         for i in range(len(files)):
             self.listFile.insert(tkinter.END, files[i])
         self.insert_index.config(values=self.listFile.get(0, tkinter.END))
+        self.listFile.event_generate("<<ListboxSelect>>")
     def clear_alllist(self):
         self.listFile.delete(0, tkinter.END)
         self.insert_index.config(values=self.listFile.get(0, tkinter.END))
         self.insert_index.set("เลือกไฟล์หน้าคั่นบท")
         self.fileHeader = []
         self.showHead.config(text="")
+        self.listFile.event_generate("<<ListboxSelect>>")
+        self.show_numPages.config(text="0 คั่นบท")
     def get_listFile(self):
         return self.listFile.curselection()
     def set_fileHeader(self):
@@ -82,11 +85,28 @@ class run_program(GUI):
         self.fileHeader.append(fileHeader)
         self.showHead.config(text=self.showHead.cget("text")+"\n"+fileHeader)
         self.listFile.delete(cur_se)
+        self.listFile.event_generate("<<ListboxSelect>>")
     
+    def showNum_onSelected(self, event):
+        try:
+            self.listFile.insert(self.remem[0], self.remem[1])
+        except AttributeError:
+            pass
+        selected = self.insert_index.get()
+        numPages = len(pdfrw.PdfFileReader(selected).pages)
+        self.show_numPages.config(text=str(numPages)+" คั่นบท")
+        index_selected = self.listFile.get(0, "end").index(self.insert_index.get())
+        
+        self.listFile.delete(index_selected)
+        self.remem = (index_selected, self.insert_index.get())
+        self.listFile.event_generate("<<ListboxSelect>>")
+    def delete_selectedList(self):
+        self.listFile.delete(self.get_listFile())
+        self.listFile.event_generate("<<ListboxSelect>>")
     def onclick_combind(self):
         try:
-            index_selected = self.listFile.get(0, "end").index(self.insert_index.get())
-            self.listFile.delete(index_selected)
+            #index_selected = self.listFile.get(0, "end").index(self.insert_index.get())
+            #self.listFile.delete(index_selected)
             saveTo = self.combind_loop(self.listFile.get(0, tkinter.END), self.insert_index.get(), self.fileHeader, self.fileout.get())
             tkinter.messagebox.showinfo("รวมไฟล์","รวมไฟล์สำเรียบร้อยไฟล์จะเก็บไว้ที่ "+saveTo)
         except Exception as e:
@@ -95,7 +115,31 @@ class run_program(GUI):
                         
                 saveTo = self.combind_loop(self.listFile.get(0, tkinter.END), "", self.fileHeader, self.fileout.get())
                 tkinter.messagebox.showinfo("รวมไฟล์","รวมไฟล์สำเรียบร้อยไฟล์จะเก็บไว้ที่ "+saveTo)
+    def onKey_listFile(self, event):
+        if event.keysym == "Prior":
+            self.select_up()
+        elif event.keysym == "Next":
+            self.select_down()
+        elif event.keysym == "Delete":
+            self.delete_selectedList()
+            
+            
+    def onEvent_listFile(self, event):
+        
+        self.show_numFiles.config(text=str(len(self.listFile.get(0,"end")))+" บท")
                 
+    def select_up(self):
+        cur = (self.get_listFile(), self.listFile.get(self.get_listFile()))
+        self.listFile.delete(cur[0])
+        self.listFile.insert(cur[0][0]-1, cur[1]) 
+        self.listFile.selection_set(cur[0][0]-1)
+        
+    def select_down(self):
+        cur = (self.get_listFile(), self.listFile.get(self.get_listFile()))
+        self.listFile.delete(cur[0])
+        self.listFile.insert(cur[0][0]+1, cur[1]) 
+        self.listFile.selection_set(cur[0][0]+1)
+        
     def main_gui(self):
         self.frame_left = self.add_frame()
         self.frame_right = self.add_frame()
@@ -108,17 +152,28 @@ class run_program(GUI):
         self.insert_index.set("เลือกไฟล์หน้าคั่นบท")
         tkinter.Label(self.frame_left, text="ไฟล์แต่ละบท", font=("Courier", 30)).pack()
         self.listFile.pack(side=tkinter.LEFT)
+        self.listFile.bind("<KeyPress>", self.onKey_listFile)
+        self.listFile.bind("<<ListboxSelect>>", self.onEvent_listFile)
+        tkinter.Button(self.frame_left, text="Up", command=self.select_up).pack()
+        tkinter.Button(self.frame_left, text="Down", command=self.select_down).pack()
         tkinter.Button(self.frame_right, text="เลือกสาระบัญและปกใน", font=("Courier", 15), command=lambda: self.set_fileHeader()).pack()
+        self.show_numFiles = tkinter.Label(self.frame_left,fg="red",font=("Courier", 15), text="0 บท")
+        self.show_numFiles.pack(side=tkinter.LEFT)
         self.showHead = tkinter.Label(self.frame_right, text="", font=("Courier", 10))
         self.showHead.pack()
         self.insert_index.pack(side=tkinter.LEFT)       
+        self.show_numPages = tkinter.Label(self.frame_right,font=("Courier", 13), text="0 คั่นบท", fg="red")
+        self.insert_index.bind("<<ComboboxSelected>>", self.showNum_onSelected)
+        self.show_numPages.pack()
         tkinter.Button(self.frame_menu, text="เลือกไฟล์", font=("Courier", 13), command=lambda: self.onclick_seFile()).pack()
         tkinter.Button(self.frame_menu, text="clear", command=lambda: self.clear_alllist()).pack()
+        tkinter.Button(self.frame_menu, text="delete", command=lambda: self.delete_selectedList()).pack()
         defaultName = tkinter.StringVar()
         defaultName.set("รวมไฟล์")
         self.fileout = tkinter.Entry(self.frame_menu, font=("Courier", 13), textvariable=defaultName)
         self.fileout.pack()
         tkinter.Button(self.frame_menu, text="combind", fg="pink", bg="green", command=lambda: self.onclick_combind()).pack()
+        self.root.bind_all("<Control-o>", self.onclick_seFile)
         self.root.mainloop()
     
     #def pageInsert(self):
