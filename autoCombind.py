@@ -45,7 +45,7 @@ class run_program(GUI):
                     writer.addpage(pdfrw.PdfFileReader(blankPage).pages[0])
            
         for i in range(len(files)):
-            if file_index != "":
+            if file_index != "" and self.showInsertBox.get()==1:
                 add_index = self.add_pageInfo(pdfrw.PdfFileReader(file_index).pages[i], "index_insert")
                 writer.addpage(add_index)
                 writer.addpage(pdfrw.PdfFileReader(blankPage).pages[0])
@@ -139,7 +139,12 @@ class run_program(GUI):
         self.listFile.delete(cur[0])
         self.listFile.insert(cur[0][0]+1, cur[1]) 
         self.listFile.selection_set(cur[0][0]+1)
-        
+     
+    def check_box(self):
+        if self.showInsertBox.get() == 1:
+            self.insert_index.pack(side=tkinter.LEFT)
+        else:
+            self.insert_index.forget()
     def main_gui(self):
         self.frame_left = self.add_frame()
         self.frame_right = self.add_frame()
@@ -165,10 +170,13 @@ class run_program(GUI):
         self.show_numFiles.pack(side=tkinter.LEFT)
         self.showHead = tkinter.Label(self.frame_right, text="", font=("Courier", 10))
         self.showHead.pack()
-        self.insert_index.pack(side=tkinter.LEFT)       
+        #self.insert_index.pack(side=tkinter.LEFT)       
         self.show_numPages = tkinter.Label(self.frame_right,font=("Courier", 13), text="0 คั่นบท", fg="red")
         self.insert_index.bind("<<ComboboxSelected>>", self.showNum_onSelected)
-        self.show_numPages.pack()
+        self.showInsertBox = tkinter.IntVar()
+        self.show_insert = tkinter.Checkbutton(self.frame_right,text="หน้าคั่นบท", variable=self.showInsertBox, command=self.check_box)
+        self.show_insert.pack()
+        #self.show_numPages.pack()
         tkinter.Button(self.frame_menu, text="เลือกไฟล์", font=("Courier", 13), command=lambda: self.onclick_seFile()).pack()
         tkinter.Button(self.frame_menu, text="clear", command=lambda: self.clear_alllist()).pack()
         tkinter.Button(self.frame_menu, text="delete", command=lambda: self.delete_selectedList()).pack()
