@@ -143,8 +143,10 @@ class run_program(GUI):
     def check_box(self):
         if self.showInsertBox.get() == 1:
             self.insert_index.pack(side=tkinter.LEFT)
+            self.show_numPages.pack()
         else:
             self.insert_index.forget()
+            self.show_numPages.forget()
     def main_gui(self):
         self.frame_left = self.add_frame()
         self.frame_right = self.add_frame()
