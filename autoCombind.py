@@ -24,6 +24,7 @@ class GUI():
 
 
 class run_program(GUI):
+    infoPage = {}
     def add_pageInfo(self, pageDict, msg):
         pageDict.krit = msg
         return pageDict
@@ -71,14 +72,14 @@ class run_program(GUI):
         for i in range(len(files)):
             self.listFile.insert(tkinter.END, files[i])
         self.insert_index.config(values=self.listFile.get(0, tkinter.END))
-        self.listFile.event_generate("<<ListboxSelect>>")
+        self.listFile.event_generate("<<UpdateValue>>")
     def clear_alllist(self):
         self.listFile.delete(0, tkinter.END)
         self.insert_index.config(values=self.listFile.get(0, tkinter.END))
         self.insert_index.set("เลือกไฟล์หน้าคั่นบท")
         self.fileHeader = []
         self.showHead.config(text="")
-        self.listFile.event_generate("<<ListboxSelect>>")
+        self.listFile.event_generate("<<UpdateValue>>")
         self.show_numPages.config(text="0 คั่นบท")
     def get_listFile(self):
         return self.listFile.curselection()
@@ -88,7 +89,7 @@ class run_program(GUI):
         self.fileHeader.append(fileHeader)
         self.showHead.config(text=self.showHead.cget("text")+"\n"+fileHeader)
         self.listFile.delete(cur_se)
-        self.listFile.event_generate("<<ListboxSelect>>")
+        self.listFile.event_generate("<<UpdateValue>>")
     
     def showNum_onSelected(self, event):
         try:
@@ -102,10 +103,10 @@ class run_program(GUI):
         
         self.listFile.delete(index_selected)
         self.remem = (index_selected, self.insert_index.get())
-        self.listFile.event_generate("<<ListboxSelect>>")
+        self.listFile.event_generate("<<UpdateValue>>")
     def delete_selectedList(self):
         self.listFile.delete(self.get_listFile())
-        self.listFile.event_generate("<<ListboxSelect>>")
+        self.listFile.event_generate("<<UpdateValue>>")
     def onclick_combind(self):
         try:
             #index_selected = self.listFile.get(0, "end").index(self.insert_index.get())
@@ -128,9 +129,23 @@ class run_program(GUI):
             
             
     def onEvent_listFile(self, event):
+        cur_se = self.listFile.curselection()
+        self.infoPage["name"] = os.path.basename(self.listFile.get(cur_se))
+        self.infoPage["num"] = str(len(pdfrw.PdfReader(self.listFile.get(cur_se)).pages))
+        self.infoPage["lesson_num"] = str(cur_se[0]+1)
+        #self.show_infoName.forget()
+        self.show_infoName.config(text="ชื่อไฟล์: "+self.infoPage["name"])
+        self.show_infoNum.config(text="จำนวนหน้า: "+self.infoPage["num"])
+        self.show_lessonNum.config(text="บทที่: "+self.infoPage["lesson_num"])
+        self.show_infoName.pack()
+        self.show_lessonNum.pack()
+        self.show_infoNum.pack()
         
+
+    def update_value(self, event):
+        #self.listFile.event_generate("<<ListboxSelect>>")
         self.show_numFiles.config(text=str(len(self.listFile.get(0,"end")))+" บท")
-                
+        
     def select_up(self):
         cur = (self.get_listFile(), self.listFile.get(self.get_listFile()))
         self.listFile.delete(cur[0])
@@ -153,10 +168,17 @@ class run_program(GUI):
     def main_gui(self):
         self.frame_left = self.add_frame()
         self.frame_right = self.add_frame()
+        self.frame_infoFile = self.add_frame()
         self.frame_menu = self.add_frame()
         self.frame_left.grid(row=1, column=1)
         self.frame_right.grid(row=1, column=2)
+        self.frame_infoFile.grid(row=2, column=1)
         self.frame_menu.grid(row=2, column=2)
+        
+        self.show_infoName = tkinter.Label(self.frame_infoFile, font=("Courier", 15))
+        self.show_infoNum = tkinter.Label(self.frame_infoFile, font=("Courier", 15))
+        self.show_lessonNum = tkinter.Label(self.frame_infoFile, font=("Courier", 15))
+        
         self.listFile = tkinter.Listbox(self.frame_left, width=80)
         self.insert_index = ttk.Combobox(self.frame_right, values=self.listFile.get(0, tkinter.END), width=40)
         self.insert_index.set("เลือกไฟล์หน้าคั่นบท")
@@ -164,6 +186,7 @@ class run_program(GUI):
         self.listFile.pack(side=tkinter.LEFT)
         self.listFile.bind("<KeyPress>", self.onKey_listFile)
         self.listFile.bind("<<ListboxSelect>>", self.onEvent_listFile)
+        self.listFile.bind("<<UpdateValue>>", self.update_value)
         upImage = tkinter.PhotoImage(file="up.png")
         upImage = upImage.subsample(25,25)
         downImage = tkinter.PhotoImage(file="down.png")
