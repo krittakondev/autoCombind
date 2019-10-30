@@ -6,6 +6,7 @@ inp = ""
 def file_chooser():
     global inp
     inp = tkinter.filedialog.askopenfilename()   
+    root.title("get_pageList from file "+inp)
     return inp
 def get_listIndex(read):
     list_index = []

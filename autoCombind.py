@@ -49,15 +49,18 @@ class run_program(GUI):
                 add_index = self.add_pageInfo(pdfrw.PdfFileReader(file_index).pages[i], "index_insert")
                 writer.addpage(add_index)
                 writer.addpage(pdfrw.PdfFileReader(blankPage).pages[0])
-            if self.is_odd(files[i]):
-                writer.addpages(pdfrw.PdfFileReader(files[i]).pages)
-                writer.addpage(pdfrw.PdfFileReader(blankPage).pages[0])
-            elif len(files)-1 == i:
-                writer.addpages(pdfrw.PdfFileReader(files[i]).pages)
-                writer.addpage(pdfrw.PdfFileReader(blankPage).pages[0])
-                writer.addpage(pdfrw.PdfFileReader(blankPage).pages[0])
-            else:
-                writer.addpages(pdfrw.PdfFileReader(files[i]).pages)
+            
+            writer.addpages(pdfrw.PdfFileReader(files[i]).pages)    
+            if self.insertBlank.get() == 1:
+                is_insert = self.is_odd(files[i])
+                #writer.addpages(pdfrw.PdfFileReader(files[i]).pages)
+                if len(files)-1 == i and is_insert == False:
+                    writer.addpage(pdfrw.PdfFileReader(blankPage).pages[0])
+                    writer.addpage(pdfrw.PdfFileReader(blankPage).pages[0])   
+                if is_insert:
+                    writer.addpage(pdfrw.PdfFileReader(blankPage).pages[0])                
+                                    
+                
         saveTo = cur_dir+"/"+outfile+".pdf"
         writer.write(saveTo)  
         writer.write("log/"+datetime.datetime.now().strftime("%y%m%d_%S%M%H.pdf"))
@@ -179,7 +182,10 @@ class run_program(GUI):
         self.show_insert = tkinter.Checkbutton(self.frame_right,text="หน้าคั่นบท", variable=self.showInsertBox, command=self.check_box)
         self.show_insert.pack()
         #self.show_numPages.pack()
-        tkinter.Button(self.frame_menu, text="เลือกไฟล์", font=("Courier", 13), command=lambda: self.onclick_seFile()).pack()
+        self.insertBlank = tkinter.IntVar()
+        self.show_insertBlank = tkinter.Checkbutton(self.frame_right,text="แทรกหน้าขาวถ้าไม่เข้าคู่", variable=self.insertBlank)
+        self.show_insertBlank.pack()
+        tkinter.Button(self.frame_menu, text="เลือกไฟล์", font=("Courier", 13), command=lambda: self.onclick_seFile(), fg="yellow", bg="#999999").pack()
         tkinter.Button(self.frame_menu, text="clear", command=lambda: self.clear_alllist()).pack()
         tkinter.Button(self.frame_menu, text="delete", command=lambda: self.delete_selectedList()).pack()
         defaultName = tkinter.StringVar()
