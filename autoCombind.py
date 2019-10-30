@@ -6,6 +6,10 @@ import os
 from tkinter import ttk
 import datetime
 
+"""
+เขียนเพิ่มเติมให้สามารถใช้หน้าคั่นหน้าเดี่ยวกันได้
+
+"""
 
 class GUI():
     def __init__(self, title):
