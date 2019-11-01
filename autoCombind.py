@@ -22,7 +22,7 @@ class GUI():
 
         
     def fileSelect(self):
-        return tkinter.filedialog.askopenfilenames()
+        return tkinter.filedialog.askopenfilenames(filetypes=[("pdf files", "*.pdf")])
     def mainloop(self):
         self.root.mainloop()
 
@@ -30,7 +30,8 @@ class GUI():
 class run_program(GUI):
     infoPage = {}
     def add_pageInfo(self, pageDict, msg):
-        pageDict.krit = msg
+
+        pageDict.krit = str(msg)
         return pageDict
     
     def is_odd(self, file):
@@ -53,7 +54,8 @@ class run_program(GUI):
             if file_index != "" and self.showInsertBox.get()==1:
                 add_index = self.add_pageInfo(pdfrw.PdfFileReader(file_index).pages[i], "index_insert")
                 writer.addpage(add_index)
-                writer.addpage(pdfrw.PdfFileReader(blankPage).pages[0])
+                if self.insertBlank.get() == 1:
+                    writer.addpage(pdfrw.PdfFileReader(blankPage).pages[0])
             
             writer.addpages(pdfrw.PdfFileReader(files[i]).pages)    
             if self.insertBlank.get() == 1:
@@ -67,7 +69,8 @@ class run_program(GUI):
                                     
                 
         saveTo = cur_dir+"/"+outfile+".pdf"
-        writer.write(saveTo)  
+        
+        test = writer.write(saveTo)  
         writer.write("log/"+datetime.datetime.now().strftime("%y%m%d_%S%M%H.pdf"))
         return saveTo
     def onclick_seFile(self, event=""):
@@ -101,8 +104,8 @@ class run_program(GUI):
         except AttributeError:
             pass
         selected = self.insert_index.get()
-        numPages = len(pdfrw.PdfFileReader(selected).pages)
-        self.show_numPages.config(text=str(numPages)+" คั่นบท")
+        self.numPagesInsert = len(pdfrw.PdfFileReader(selected).pages)
+        self.show_numPages.config(text=str(self.numPagesInsert)+" คั่นบท")
         index_selected = self.listFile.get(0, "end").index(self.insert_index.get())
         
         self.listFile.delete(index_selected)
@@ -118,11 +121,16 @@ class run_program(GUI):
             saveTo = self.combind_loop(self.listFile.get(0, tkinter.END), self.insert_index.get(), self.fileHeader, self.fileout.get())
             tkinter.messagebox.showinfo("รวมไฟล์","รวมไฟล์สำเรียบร้อยไฟล์จะเก็บไว้ที่ "+saveTo)
         except Exception as e:
+            print(e.args)
             if str(e) == "tuple.index(x): x not in tuple":
 
                         
-                saveTo = self.combind_loop(self.listFile.get(0, tkinter.END), "", self.fileHeader, self.fileout.get())
-                tkinter.messagebox.showinfo("รวมไฟล์","รวมไฟล์สำเรียบร้อยไฟล์จะเก็บไว้ที่ "+saveTo)
+                #saveTo = self.combind_loop(self.listFile.get(0, tkinter.END), "", self.fileHeader, self.fileout.get())
+                tkinter.messagebox.showerror("รวมไฟล์","ไม่สามารถรวมไฟล์ได้เนื่องจากจำนวนบทกับจำนวนหน้าไม่เท่ากัน")
+            
+            elif e.args[0] == 13:
+                tkinter.messagebox.showerror("รวมไฟล์","ไม่สามารถsaveไฟล์ได้เนื่องจากไฟล์กำลังเปิดอยู่")
+            print(e)
     def onKey_listFile(self, event):
         if event.keysym == "Prior":
             self.select_up()
@@ -155,6 +163,7 @@ class run_program(GUI):
         self.listFile.delete(cur[0])
         self.listFile.insert(cur[0][0]-1, cur[1]) 
         self.listFile.selection_set(cur[0][0]-1)
+        #self.listFile.select_set(cur[0]-1)
         
     def select_down(self):
         cur = (self.get_listFile(), self.listFile.get(self.get_listFile()))
@@ -162,7 +171,9 @@ class run_program(GUI):
         self.listFile.insert(cur[0][0]+1, cur[1]) 
         self.listFile.selection_set(cur[0][0]+1)
      
+        #self.listFile.select_set(cur[0]+1)
     def check_box(self):
+        #self.listFile.select_set(2)
         if self.showInsertBox.get() == 1:
             self.insert_index.pack(side=tkinter.LEFT)
             self.show_numPages.pack()
