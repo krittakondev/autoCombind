@@ -202,6 +202,13 @@ class run_program(GUI):
         self.listFile.bind("<KeyPress>", self.onKey_listFile)
         self.listFile.bind("<<ListboxSelect>>", self.onEvent_listFile)
         self.listFile.bind("<<UpdateValue>>", self.update_value)
+     
+        self.scrollList = tkinter.Scrollbar(self.frame_left, orient="vertical")
+        self.scrollList.config(command=self.listFile.yview)
+        self.scrollList.pack(side=tkinter.LEFT, fill='y')       
+          
+        self.listFile.config(yscrollcommand=self.scrollList.set)
+
         upImage = tkinter.PhotoImage(file="up.png")
         upImage = upImage.subsample(25,25)
         downImage = tkinter.PhotoImage(file="down.png")
