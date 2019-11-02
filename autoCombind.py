@@ -19,7 +19,8 @@ class GUI():
         
     def add_frame(self):
         return tkinter.Frame(self.root)
-
+    def add_labelFrame(self, message):
+        return ttk.Labelframe(self.root, text=message)    
         
     def fileSelect(self):
         return tkinter.filedialog.askopenfilenames()
@@ -169,10 +170,12 @@ class run_program(GUI):
         else:
             self.insert_index.forget()
             self.show_numPages.forget()
+    def test(self, event):
+        tkinter.messagebox.showinfo("testing", "show")
     def main_gui(self):
         self.frame_left = self.add_frame()
         self.frame_right = self.add_frame()
-        self.frame_infoFile = self.add_frame()
+        self.frame_infoFile = self.add_labelFrame("ข้อมูลไฟล์")
         self.frame_menu = self.add_frame()
         self.frame_left.grid(row=1, column=1)
         self.frame_right.grid(row=1, column=2)
@@ -191,6 +194,7 @@ class run_program(GUI):
         self.listFile.bind("<KeyPress>", self.onKey_listFile)
         self.listFile.bind("<<ListboxSelect>>", self.onEvent_listFile)
         self.listFile.bind("<<UpdateValue>>", self.update_value)
+        self.listFile.bind("a", self.test)
         upImage = tkinter.PhotoImage(file="up.png")
         upImage = upImage.subsample(25,25)
         downImage = tkinter.PhotoImage(file="down.png")
