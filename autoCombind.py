@@ -52,8 +52,14 @@ class run_program(GUI):
            
         for i in range(len(files)):
             if file_index != "" and self.showInsertBox.get()==1:
-                add_index = self.add_pageInfo(pdfrw.PdfFileReader(file_index).pages[i], "index_insert")
-                writer.addpage(add_index)
+                readFile = pdfrw.PdfFileReader(file_index)
+                if len(readFile.pages) == len(self.listFile.get("end")):
+                    add_index = self.add_pageInfo(readFile.pages[i], "index_insert")
+                
+                    writer.addpage(add_index)
+                else:
+                    return "หน้าคั่นไม่เท่ากัน"
+                    
                 if self.insertBlank.get() == 1:
                     writer.addpage(pdfrw.PdfFileReader(blankPage).pages[0])
             
@@ -119,10 +125,13 @@ class run_program(GUI):
             #index_selected = self.listFile.get(0, "end").index(self.insert_index.get())
             #self.listFile.delete(index_selected)
             saveTo = self.combind_loop(self.listFile.get(0, tkinter.END), self.insert_index.get(), self.fileHeader, self.fileout.get())
-            tkinter.messagebox.showinfo("รวมไฟล์","รวมไฟล์สำเรียบร้อยไฟล์จะเก็บไว้ที่ "+saveTo)
+            if saveTo == "หน้าคั่นไม่เท่ากัน":
+                tkinter.messagebox.showerror("รวมไฟล์","ไม่สามารถรวมไฟล์ได้เนื่องจากจำนวนบทกับจำนวนหน้าไม่เท่ากัน")
+            else:
+                tkinter.messagebox.showinfo("รวมไฟล์","รวมไฟล์สำเรียบร้อยไฟล์จะเก็บไว้ที่ "+saveTo)
         except Exception as e:
             print(e.args)
-            if str(e) == "tuple.index(x): x not in tuple":
+            if e.args[0] == "list index out of range":
 
                         
                 #saveTo = self.combind_loop(self.listFile.get(0, tkinter.END), "", self.fileHeader, self.fileout.get())
@@ -130,7 +139,6 @@ class run_program(GUI):
             
             elif e.args[0] == 13:
                 tkinter.messagebox.showerror("รวมไฟล์","ไม่สามารถsaveไฟล์ได้เนื่องจากไฟล์กำลังเปิดอยู่")
-            print(e)
     def onKey_listFile(self, event):
         if event.keysym == "Prior":
             self.select_up()
