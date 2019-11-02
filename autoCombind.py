@@ -53,11 +53,13 @@ class run_program(GUI):
         for i in range(len(files)):
             if file_index != "" and self.showInsertBox.get()==1:
                 readFile = pdfrw.PdfFileReader(file_index)
-                if len(readFile.pages) == len(self.listFile.get("end")):
+                if len(readFile.pages) == len(self.listFile.get(0,"end")): # <<<<<< มีปัญหาอยู่
                     add_index = self.add_pageInfo(readFile.pages[i], "index_insert")
                 
                     writer.addpage(add_index)
                 else:
+                    print(len(readFile.pages))
+                    print(len(self.listFile.get("end")))
                     return "หน้าคั่นไม่เท่ากัน"
                     
                 if self.insertBlank.get() == 1:
