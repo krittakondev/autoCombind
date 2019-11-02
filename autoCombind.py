@@ -157,6 +157,8 @@ class run_program(GUI):
     def update_value(self, event):
         #self.listFile.event_generate("<<ListboxSelect>>")
         self.show_numFiles.config(text=str(len(self.listFile.get(0,"end")))+" บท")
+        # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        self.listFile.xview_moveto(1.0)
         
     def select_up(self):
         cur = (self.get_listFile(), self.listFile.get(self.get_listFile()))
@@ -205,8 +207,10 @@ class run_program(GUI):
      
         self.scrollList = tkinter.Scrollbar(self.frame_left, orient="vertical")
         self.scrollList.config(command=self.listFile.yview)
-        self.scrollList.pack(side=tkinter.LEFT, fill='y')       
-          
+        self.scrollList.pack(side=tkinter.LEFT, fill='y')    
+        
+        #print(self.listFile.xview()) #<<<<<<<<<<<<<<<<<<<<<<<<
+        
         self.listFile.config(yscrollcommand=self.scrollList.set)
 
         upImage = tkinter.PhotoImage(file="up.png")
