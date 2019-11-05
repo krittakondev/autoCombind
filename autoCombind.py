@@ -191,8 +191,8 @@ class run_program(GUI):
             self.insert_index.pack(side=tkinter.LEFT)
             
             self.frameRadio.pack()
-            tkinter.Radiobutton(self.frameRadio, text="หน้าเดียว").pack() # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-            tkinter.Radiobutton(self.frameRadio, text="ทุกหน้า").pack()
+            #tkinter.Radiobutton(self.frameRadio, text="หน้าเดียว").pack() # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+            #tkinter.Radiobutton(self.frameRadio, text="ทุกหน้า").pack()
             self.show_numPages.pack()
         else:
             self.insert_index.forget()
