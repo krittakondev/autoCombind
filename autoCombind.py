@@ -142,6 +142,8 @@ class run_program(GUI):
             
             elif e.args[0] == 13:
                 tkinter.messagebox.showerror("รวมไฟล์","ไม่สามารถsaveไฟล์ได้เนื่องจากไฟล์กำลังเปิดอยู่")
+            elif e.args[0] == "Could not read PDF file เลือกไฟล์หน้าคั่นบท":
+                tkinter.messagebox.showerror("รวมไฟล์","คุณยังไม่ได้เลือกหน้าคั่น โปรดเลือกหน้าคั่น")
     def onKey_listFile(self, event):
         if event.keysym == "Prior":
             self.select_up()
