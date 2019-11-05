@@ -87,6 +87,7 @@ class run_program(GUI):
         for i in range(len(files)):
             self.listFile.insert(tkinter.END, files[i])
         self.insert_index.config(values=self.listFile.get(0, tkinter.END))
+        self.insert_index.xview_moveto(1.0)
         self.listFile.event_generate("<<UpdateValue>>")
     def clear_alllist(self):
         self.listFile.delete(0, tkinter.END)
@@ -188,10 +189,15 @@ class run_program(GUI):
         #self.listFile.select_set(2)
         if self.showInsertBox.get() == 1:
             self.insert_index.pack(side=tkinter.LEFT)
+            
+            self.frameRadio.pack()
+            tkinter.Radiobutton(self.frameRadio, text="หน้าเดียว").pack() # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+            tkinter.Radiobutton(self.frameRadio, text="ทุกหน้า").pack()
             self.show_numPages.pack()
         else:
             self.insert_index.forget()
             self.show_numPages.forget()
+            self.frameRadio.forget()
     def main_gui(self):
         self.frame_left = self.add_frame()
         self.frame_right = self.add_frame()
@@ -239,6 +245,7 @@ class run_program(GUI):
         self.insert_index.bind("<<ComboboxSelected>>", self.showNum_onSelected)
         self.showInsertBox = tkinter.IntVar()
         self.show_insert = tkinter.Checkbutton(self.frame_right,text="หน้าคั่นบท", variable=self.showInsertBox, command=self.check_box)
+        self.frameRadio = ttk.Labelframe(self.frame_right, text="options")
         self.show_insert.pack()
         #self.show_numPages.pack()
         self.insertBlank = tkinter.IntVar()
