@@ -85,7 +85,8 @@ class run_program(GUI):
         files = self.fileSelect()
         self.list_filename = files
         for i in range(len(files)):
-            self.listFile.insert(tkinter.END, files[i])
+            self.listFile.insert( "", "end", text=files[i], values=(i+1, os.path.basename(files[i]), os.path.dirname(files[i])))
+            #self.listFile.insert(tkinter.END, files[i])
         self.insert_index.config(values=self.listFile.get(0, tkinter.END))
         self.insert_index.xview_moveto(1.0)
         self.listFile.event_generate("<<UpdateValue>>")
@@ -98,7 +99,7 @@ class run_program(GUI):
         self.listFile.event_generate("<<UpdateValue>>")
         self.show_numPages.config(text="0 คั่นบท")
     def get_listFile(self):
-        return self.listFile.curselection()
+        return self.listFile.selection()
     def set_fileHeader(self):
         cur_se = self.listFile.curselection()
         fileHeader = self.listFile.get(cur_se)
@@ -174,13 +175,16 @@ class run_program(GUI):
         self.listFile.xview_moveto(1.0)
         
     def select_up(self):
-        cur = (self.get_listFile(), self.listFile.get(self.get_listFile()))
+        cur = (self.get_listFile(), self.listFile.item(self.get_listFile()[0]))
         self.listFile.delete(cur[0])
-        self.listFile.insert(cur[0][0]-1, cur[1]) 
+        print(cur[0][0])
+        self.listFile.insert("",cur[0][0]-1, cur[1]) 
         self.listFile.selection_set(cur[0][0]-1)
         #self.listFile.select_set(cur[0]-1)
         
+        
     def select_down(self):
+        self.listFile.index()
         cur = (self.get_listFile(), self.listFile.get(self.get_listFile()))
         self.listFile.delete(cur[0])
         self.listFile.insert(cur[0][0]+1, cur[1]) 
@@ -200,6 +204,8 @@ class run_program(GUI):
             self.insert_index.forget()
             self.show_numPages.forget()
             self.frameRadio.forget()
+            
+
     def main_gui(self):
         self.frame_left = self.add_frame()
         self.frame_right = self.add_frame()
@@ -214,9 +220,20 @@ class run_program(GUI):
         self.show_infoNum = tkinter.Label(self.frame_infoFile, font=("Courier", 15))
         self.show_lessonNum = tkinter.Label(self.frame_infoFile, font=("Courier", 15))
         
-        self.listFile = tkinter.Listbox(self.frame_left, width=80)
-        self.insert_index = ttk.Combobox(self.frame_right, values=self.listFile.get(0, tkinter.END), width=40)
-        self.insert_index.set("เลือกไฟล์หน้าคั่นบท")
+        self.listFile = ttk.Treeview(self.frame_left, columns=("number", "file_name", "path", "options"))
+        self.listFile['show'] = "headings"
+        self.listFile.column("number", width=40, minwidth=40)
+        self.listFile.column("file_name", anchor="center", width=200)
+        #self.listFile.column("file_name")
+        self.listFile.heading("number",text="ลำดับ")
+        self.listFile.heading("file_name",text="ชื่อไฟล์")
+        self.listFile.heading("path",text="path")
+        self.listFile.heading("options",text="options")
+        
+        
+        #tkinter.Listbox(self.frame_left, width=80)
+        #self.insert_index = ttk.Combobox(self.frame_right, values=self.listFile.get(0, tkinter.END), width=40)
+        #self.insert_index.set("เลือกไฟล์หน้าคั่นบท")
         tkinter.Label(self.frame_left, text="ไฟล์แต่ละบท", font=("Courier", 30)).pack()
         self.listFile.pack(side=tkinter.LEFT)
         self.listFile.bind("<KeyPress>", self.onKey_listFile)
@@ -244,7 +261,7 @@ class run_program(GUI):
         self.showHead.pack()
         #self.insert_index.pack(side=tkinter.LEFT)       
         self.show_numPages = tkinter.Label(self.frame_right,font=("Courier", 13), text="0 คั่นบท", fg="red")
-        self.insert_index.bind("<<ComboboxSelected>>", self.showNum_onSelected)
+        #self.insert_index.bind("<<ComboboxSelected>>", self.showNum_onSelected)
         self.showInsertBox = tkinter.IntVar()
         self.show_insert = tkinter.Checkbutton(self.frame_right,text="หน้าคั่นบท", variable=self.showInsertBox, command=self.check_box)
         self.frameRadio = ttk.Labelframe(self.frame_right, text="options")
