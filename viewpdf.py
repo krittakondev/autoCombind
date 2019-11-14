@@ -16,13 +16,20 @@ class Acrobat:
         self.app.GetActiveDoc().GetAVPageView().GoTo(To-1)
 
 class Action:
+    list_page = []
     def __init__(self):
         self.acrobat = Acrobat()
-    def next_page(self):
+    def next_page(self, event=""):
         #app.GetActiveDoc().GetAVPageView().GoTo(self.acrobat.cur_page+1)
         self.acrobat.GoToPage(self.acrobat.cur_page()+2)
         
-    def prev_page(self):
+    def down_page(self, event=""):
+        #app.GetActiveDoc().GetAVPageView().GoTo(self.acrobat.cur_page+1)
+        self.acrobat.GoToPage(self.acrobat.cur_page()+3)
+    def up_page(self, event=""):
+        #app.GetActiveDoc().GetAVPageView().GoTo(self.acrobat.cur_page+1)
+        self.acrobat.GoToPage(self.acrobat.cur_page()-1)
+    def prev_page(self, event=""):
         #curPage = app.GetActiveDoc().GetAVPageView().GetPageNum()
         #app.GetActiveDoc().GetAVPageView().GoTo(curPage-1)
         self.acrobat.GoToPage(self.acrobat.cur_page())
@@ -35,6 +42,9 @@ class Action:
             self.acrobat.GoToPage(i)
             time.sleep(0.5)
         
+    def add_list(self, event):
+        self.list_page.append(self.acrobat.cur_page())
+        print(self.list_page)
     def stop_thread(self):
         print(threading.activeCount())
 
@@ -47,11 +57,16 @@ class Action:
         tkinter.Button(self.root, text="prev", command=self.prev_page).pack()
         tkinter.Button(self.root, text="next", command=self.next_page).pack()
         tkinter.Button(self.root, text="auto next", command=self.auto_next).pack()
+        self.root.bind("a", self.add_list)
+        self.root.bind("<Left>", self.prev_page)
+        self.root.bind("<Right>", self.next_page)
+        self.root.bind("<Up>", self.up_page)
+        self.root.bind("<Down>", self.down_page)
         tkinter.Button(self.root, text="stop", command=self.auto_next).pack()
 
         self.root.attributes("-topmost", True)
 
-        tkinter.Text(self.root, width=100, height=2).pack()
+        show_list = tkinter.Text(self.root, width=50, height=2).pack()
     #def run(self):
         self.root.mainloop()
 

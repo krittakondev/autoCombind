@@ -127,9 +127,12 @@ class run_program(GUI):
         self.listFile.event_generate("<<UpdateValue>>")
     def onclick_combind(self):
         try:
+            index = self.listFile.get_children()
+            print(map(self.listFile.item, index)["text"])
+            print(index, type(index))
             #index_selected = self.listFile.get(0, "end").index(self.insert_index.get())
             #self.listFile.delete(index_selected)
-            saveTo = self.combind_loop(self.listFile.get(0, tkinter.END), self.insert_index.get(), self.fileHeader, self.fileout.get())
+            #saveTo = self.combind_loop(self.listFile.item(self.listFile.get_children()), self.insert_index.get(), self.fileHeader, self.fileout.get())
             if saveTo == "หน้าคั่นไม่เท่ากัน":
                 tkinter.messagebox.showerror("รวมไฟล์","ไม่สามารถรวมไฟล์ได้เนื่องจากจำนวนบทกับจำนวนหน้าไม่เท่ากัน")
             else:
@@ -272,13 +275,13 @@ class run_program(GUI):
         self.show_insertBlank = tkinter.Checkbutton(self.frame_right,text="แทรกหน้าขาวถ้าไม่เข้าคู่", variable=self.insertBlank)
         self.show_insertBlank.pack()
         tkinter.Button(self.frame_menu, text="เลือกไฟล์", font=("Courier", 13), command=lambda: self.onclick_seFile(), fg="yellow", bg="#999999").pack()
-        tkinter.Button(self.frame_menu, text="clear", command=lambda: self.clear_alllist()).pack()
-        tkinter.Button(self.frame_menu, text="delete", command=lambda: self.delete_selectedList()).pack()
+        ttk.Button(self.frame_menu, text="clear", command=lambda: self.clear_alllist()).pack()
+        ttk.Button(self.frame_menu, text="delete", command=lambda: self.delete_selectedList()).pack()
         defaultName = tkinter.StringVar()
         defaultName.set("รวมไฟล์")
         self.fileout = tkinter.Entry(self.frame_menu, font=("Courier", 13), textvariable=defaultName)
         self.fileout.pack()
-        tkinter.Button(self.frame_menu, text="combind", fg="pink", bg="green", command=lambda: self.onclick_combind()).pack()
+        ttk.Button(self.frame_menu, text="combind", command=lambda: self.onclick_combind()).pack()
         self.root.bind_all("<Control-o>", self.onclick_seFile)
         self.root.mainloop()
     
