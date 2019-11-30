@@ -106,10 +106,18 @@ class run_program(GUI):
                     
                                     
                 
-        saveTo = cur_dir+"/"+outfile+".pdf"
-        backup = "log/"+datetime.datetime.now().strftime("%y%m%d_%S%M%H.pdf")
+        if outfile[-4:].lower() == ".pdf":
+            saveTo = os.path.join(cur_dir, outfile)
+        else:
+            saveTo = os.path.join(cur_dir, outfile+".pdf")
+        path_log = os.path.join(os.path.dirname(os.path.realpath(__file__)),"log")
+        genName = datetime.datetime.now().strftime("%y%m%d_%S%M%H.pdf")
+        if(os.path.exists(path_log)==False):
+            os.mkdir(path_log)
+            if(os.path.exists(os.path.join(path_log, "files"))==False):
+                os.mkdir(os.path.join(path_log, "files"))
         test = writer.write(open(saveTo,'wb'))  
-        writer.write(open(backup, "wb"))
+        writer.write(open(os.path.join(path_log, os.path.join("files",genName)), "wb"))
         return saveTo
 
     def mark_1side(self, event):
