@@ -51,29 +51,38 @@ class run_program(GUI):
                     writer.addpage(pdfrw.PdfFileReader(blankPage).pages[0])
            
         for i in range(len(files)):
-            if file_index != "" and self.showInsertBox.get()==1:
-                readFile = pdfrw.PdfFileReader(file_index)
-                if len(readFile.pages) == len(self.listFile.get(0,"end")): # <<<<<< มีปัญหาอยู่
-                    add_index = self.add_pageInfo(readFile.pages[i], "index_insert")
-                
-                    writer.addpage(add_index)
-                else:
-                    print(len(readFile.pages))
-                    print(len(self.listFile.get("end")))
-                    return "หน้าคั่นไม่เท่ากัน"
+            if(self.listFile.itemcget(i, "fg")=="red"):
+                _1page = pdfrw.PdfFileReader(files[i]).pages
+                for _1 in range(len(_1page)):
+                    writer.addpage(pdfrw.PdfFileReader(files[i]).pages[_1])
+                    writer.addpage(pdfrw.PdfFileReader(blankPage).pages[0])
+
+
+            else:
+                if file_index != "" and self.showInsertBox.get()==1:
+                    readFile = pdfrw.PdfFileReader(file_index)
+                    if len(readFile.pages) == len(self.listFile.get(0,"end")): # <<<<<< มีปัญหาอยู่
+                        add_index = self.add_pageInfo(readFile.pages[i], "index_insert")
                     
+                        writer.addpage(add_index)
+                    else:
+                        print(len(readFile.pages))
+                        print(len(self.listFile.get("end")))
+                        return "หน้าคั่นไม่เท่ากัน"
+                        
+                    if self.insertBlank.get() == 1:
+                        writer.addpage(pdfrw.PdfFileReader(blankPage).pages[0])
+
+                
+                writer.addpages(pdfrw.PdfFileReader(files[i]).pages)    
                 if self.insertBlank.get() == 1:
-                    writer.addpage(pdfrw.PdfFileReader(blankPage).pages[0])
-            
-            writer.addpages(pdfrw.PdfFileReader(files[i]).pages)    
-            if self.insertBlank.get() == 1:
-                is_insert = self.is_odd(files[i])
-                #writer.addpages(pdfrw.PdfFileReader(files[i]).pages)
-                if len(files)-1 == i and is_insert == False:
-                    writer.addpage(pdfrw.PdfFileReader(blankPage).pages[0])
-                    writer.addpage(pdfrw.PdfFileReader(blankPage).pages[0])   
-                if is_insert:
-                    writer.addpage(pdfrw.PdfFileReader(blankPage).pages[0])                
+                    is_insert = self.is_odd(files[i])
+                    #writer.addpages(pdfrw.PdfFileReader(files[i]).pages)
+                    if len(files)-1 == i and is_insert == False:
+                        writer.addpage(pdfrw.PdfFileReader(blankPage).pages[0])
+                        writer.addpage(pdfrw.PdfFileReader(blankPage).pages[0])   
+                    if is_insert:
+                        writer.addpage(pdfrw.PdfFileReader(blankPage).pages[0])                
                                     
                 
         saveTo = cur_dir+"/"+outfile+".pdf"
@@ -81,6 +90,14 @@ class run_program(GUI):
         test = writer.write(saveTo)  
         writer.write("log/"+datetime.datetime.now().strftime("%y%m%d_%S%M%H.pdf"))
         return saveTo
+
+    def mark_1side(self, event):
+        cur = self.get_listFile()
+        if(self.listFile.itemcget(cur[0], "fg")=="red"):
+            self.listFile.itemconfig(cur[0], {"fg": "black"})
+        else:
+            self.listFile.itemconfig(cur[0], {"fg":"red"})
+
     def onclick_seFile(self, event=""):
         files = self.fileSelect()
         self.list_filename = files
@@ -222,6 +239,7 @@ class run_program(GUI):
         self.listFile.bind("<KeyPress>", self.onKey_listFile)
         self.listFile.bind("<<ListboxSelect>>", self.onEvent_listFile)
         self.listFile.bind("<<UpdateValue>>", self.update_value)
+        self.listFile.bind("<Control-b>", self.mark_1side)
      
         self.scrollList = tkinter.Scrollbar(self.frame_left, orient="vertical")
         self.scrollList.config(command=self.listFile.yview)
