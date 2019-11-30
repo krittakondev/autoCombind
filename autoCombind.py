@@ -5,6 +5,7 @@ import tkinter.messagebox
 import os
 from tkinter import ttk
 import datetime
+from PyPDF2 import PdfFileReader, PdfFileWriter
 
 """
 เขียนเพิ่มเติมให้สามารถใช้หน้าคั่นหน้าเดี่ยวกันได้
@@ -26,69 +27,89 @@ class GUI():
     def mainloop(self):
         self.root.mainloop()
 
-
 class run_program(GUI):
     infoPage = {}
+
+    def pdfRead(self, pdfFile):
+        f = open(pdfFile, "rb")
+        reader = pdfR(f)
+        f.close()
+        return reader
     def add_pageInfo(self, pageDict, msg):
 
         pageDict.krit = str(msg)
         return pageDict
     
-    def is_odd(self, file):
-        page_info = pdfrw.PdfFileReader(file).pages
-        if len(page_info) % 2 == 0:
+    def is_odd(self, numPages):
+        #page_info = pdfrw.PdfFileReader(file).pages
+        if numPages % 2 == 0:
             return False
         else:
             return True
+
     def combind_loop(self, files, file_index, fileHeader=[], outfile="ไฟล์รวม"):
         blankPage = "blank.pdf"
-        writer = pdfrw.PdfWriter()
+        blankPage = PdfFileReader(open(blankPage,"rb")).getPage(0)
+        countNum = 0
+        writer = PdfFileWriter()
         cur_dir = os.path.dirname(files[0])
+        page_list = []
         if len(fileHeader) > 0:
             for head in fileHeader:
-                writer.addpages(pdfrw.PdfFileReader(head).pages)
-                if self.is_odd(head):
-                    writer.addpage(pdfrw.PdfFileReader(blankPage).pages[0])
+                pagesHead = PdfFileReader(open(head, "rb"))
+                for page in range(pagesHead.numPages):
+                    writer.addPage(pagesHead.getPage(page))
+                    countNum += 1
+                if self.is_odd(pagesHead.numPages):
+                    writer.addPage(blankPage)
+                        # else:
+                        #     page_list.append()
            
         for i in range(len(files)):
             if(self.listFile.itemcget(i, "fg")=="red"):
-                _1page = pdfrw.PdfFileReader(files[i]).pages
-                for _1 in range(len(_1page)):
-                    writer.addpage(pdfrw.PdfFileReader(files[i]).pages[_1])
-                    writer.addpage(pdfrw.PdfFileReader(blankPage).pages[0])
-
-
+                _1page = PdfFileReader(open(files[i], 'rb'))
+                for _1 in range(_1page.numPages):
+                    writer.addPage(_1page.getPage(_1))
+                    countNum += 1
+                    print(countNum) #รวมไฟล์ไปกี่หน้าแล้ว
+                    writer.addPage(blankPage)
+                    
             else:
                 if file_index != "" and self.showInsertBox.get()==1:
-                    readFile = pdfrw.PdfFileReader(file_index)
-                    if len(readFile.pages) == len(self.listFile.get(0,"end")): # <<<<<< มีปัญหาอยู่
-                        add_index = self.add_pageInfo(readFile.pages[i], "index_insert")
+                    readFile = PdfFileReader(open(file_index, "rb"))
+                    if readFile.numPages == len(self.listFile.get(0,"end")): 
+                        #add_index = self.add_pageInfo(readFile.pages[i], "index_insert")
                     
-                        writer.addpage(add_index)
+                        writer.addpage(readFile.getPage(i))
                     else:
-                        print(len(readFile.pages))
+                        print(readFile.numPages)
                         print(len(self.listFile.get("end")))
                         return "หน้าคั่นไม่เท่ากัน"
                         
                     if self.insertBlank.get() == 1:
-                        writer.addpage(pdfrw.PdfFileReader(blankPage).pages[0])
-
-                
-                writer.addpages(pdfrw.PdfFileReader(files[i]).pages)    
+                        
+                        writer.addpage(blankPage)
+                        
+                mainLesson = PdfFileReader(open(files[i], "rb"))
+                for ml in range(mainLesson.numPages):
+                    print("เลขหน้า: "+str(ml)+"\nรอบที่: "+str(i))
+                    writer.addPage(mainLesson.getPage(ml))
                 if self.insertBlank.get() == 1:
-                    is_insert = self.is_odd(files[i])
+                    is_insert = self.is_odd(PdfFileReader(open(files[i], "rb")).numPages)
                     #writer.addpages(pdfrw.PdfFileReader(files[i]).pages)
                     if len(files)-1 == i and is_insert == False:
-                        writer.addpage(pdfrw.PdfFileReader(blankPage).pages[0])
-                        writer.addpage(pdfrw.PdfFileReader(blankPage).pages[0])   
+                        writer.addPage(blankPage)
+                        writer.addPage(blankPage)   
+                
                     if is_insert:
-                        writer.addpage(pdfrw.PdfFileReader(blankPage).pages[0])                
+                        writer.addPage(blankPage)   
+                    
                                     
                 
         saveTo = cur_dir+"/"+outfile+".pdf"
-        
-        test = writer.write(saveTo)  
-        writer.write("log/"+datetime.datetime.now().strftime("%y%m%d_%S%M%H.pdf"))
+        backup = "log/"+datetime.datetime.now().strftime("%y%m%d_%S%M%H.pdf")
+        test = writer.write(open(saveTo,'wb'))  
+        writer.write(open(backup, "wb"))
         return saveTo
 
     def mark_1side(self, event):
@@ -264,13 +285,16 @@ class run_program(GUI):
         self.show_numPages = tkinter.Label(self.frame_right,font=("Courier", 13), text="0 คั่นบท", fg="red")
         self.insert_index.bind("<<ComboboxSelected>>", self.showNum_onSelected)
         self.showInsertBox = tkinter.IntVar()
-        self.show_insert = tkinter.Checkbutton(self.frame_right,text="หน้าคั่นบท", variable=self.showInsertBox, command=self.check_box)
+        self.show_insert = tkinter.Checkbutton(self.frame_right,text="หน้าคั่นบท",font=("Courier", 13), variable=self.showInsertBox, command=self.check_box)
         self.frameRadio = ttk.Labelframe(self.frame_right, text="options")
         self.show_insert.pack()
         #self.show_numPages.pack()
         self.insertBlank = tkinter.IntVar()
-        self.show_insertBlank = tkinter.Checkbutton(self.frame_right,text="แทรกหน้าขาวถ้าไม่เข้าคู่", variable=self.insertBlank)
+        self.blankList = tkinter.IntVar()
+        self.show_insertBlank = tkinter.Checkbutton(self.frame_right,text="แทรกหน้าขาวถ้าไม่เข้าคู่",font=("", 13), variable=self.insertBlank)
+        self.get_blankList = tkinter.Checkbutton(self.frame_right,text="เลขหน้าแทนการแทรกขาว",font=("", 13), variable=self.blankList)
         self.show_insertBlank.pack()
+        self.get_blankList.pack()
         tkinter.Button(self.frame_menu, text="เลือกไฟล์", font=("Courier", 13), command=lambda: self.onclick_seFile(), fg="yellow", bg="#999999").pack()
         tkinter.Button(self.frame_menu, text="clear", command=lambda: self.clear_alllist()).pack()
         tkinter.Button(self.frame_menu, text="delete", command=lambda: self.delete_selectedList()).pack()
