@@ -77,7 +77,6 @@ class run_program(GUI):
                     # writer.addPage(blankPage)
                     writer.addBlankPage()
                     writer.addBookmark("blank", writer.getNumPages()-1)
-                    print(writer.getNumPages())
                     
             else:
                 if file_index != "" and self.showInsertBox.get()==1:
@@ -103,20 +102,20 @@ class run_program(GUI):
                 #     # print("เลขหน้า: "+str(ml)+"\nรอบที่: "+str(i))
                 #     writer.addPage(mainLesson.getPage(ml))
                 if self.insertBlank.get() == 1:
-                    is_insert = self.is_odd(PdfFileReader(open(files[i], "rb")).numPages)
+                    is_insert = self.is_odd(PdfFileReader(open(files[i], "rb")).getNumPages())
                     #writer.addpages(pdfrw.PdfFileReader(files[i]).pages)
                     if len(files)-1 == i and is_insert == False:
                         # writer.addPage(blankPage)
                         # writer.addPage(blankPage)   
                         writer.addBlankPage()
-                        writer.addBookmark("blank", writer.getNumPages())
+                        writer.addBookmark("blank", writer.getNumPages()-1)
                         writer.addBlankPage()
-                        writer.addBookmark("blank", writer.getNumPages())
+                        writer.addBookmark("blank", writer.getNumPages()-1)
                 
                     if is_insert:
                         # writer.addPage(blankPage)   
                         writer.addBlankPage()
-                        writer.addBookmark("blank", writer.getNumPages())
+                        writer.addBookmark("blank", writer.getNumPages()-1)
             print(writer.getNumPages())
         if outfile[-4:].lower() == ".pdf":
             saveTo = os.path.join(cur_dir, outfile)
