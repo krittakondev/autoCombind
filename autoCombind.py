@@ -293,9 +293,9 @@ class run_program(GUI):
         
         self.listFile.config(yscrollcommand=self.scrollList.set)
 
-        upImage = tkinter.PhotoImage(file="up.png")
+        upImage = tkinter.PhotoImage(file=os.path.join(self.MAIN_PATH, "up.png"))
         upImage = upImage.subsample(25,25)
-        downImage = tkinter.PhotoImage(file="down.png")
+        downImage = tkinter.PhotoImage(file=os.path.join(self.MAIN_PATH, "down.png"))
         downImage = downImage.subsample(25,25)
         tkinter.Button(self.frame_left, image=upImage, command=self.select_up).pack()
         tkinter.Button(self.frame_left, image=downImage, command=self.select_down).pack()
