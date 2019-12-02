@@ -6,6 +6,7 @@ import os
 from tkinter import ttk
 import datetime
 from PyPDF2 import PdfFileReader, PdfFileWriter
+import shutil
 
 """
 เขียนเพิ่มเติมให้สามารถใช้หน้าคั่นหน้าเดี่ยวกันได้
@@ -29,6 +30,7 @@ class GUI():
 
 class run_program(GUI):
     infoPage = {}
+    MAIN_PATH = os.path.dirname(os.path.realpath(__file__))
 
     def pdfRead(self, pdfFile):
         f = open(pdfFile, "rb")
@@ -61,7 +63,8 @@ class run_program(GUI):
                     writer.addPage(pagesHead.getPage(page))
                     countNum += 1
                 if self.is_odd(pagesHead.numPages):
-                    writer.addPage(blankPage)
+                    # writer.addPage(blankPage)
+                    writer.addBlankPage()
                         # else:
                         #     page_list.append()
            
@@ -70,9 +73,9 @@ class run_program(GUI):
                 _1page = PdfFileReader(open(files[i], 'rb'))
                 for _1 in range(_1page.numPages):
                     writer.addPage(_1page.getPage(_1))
-                    countNum += 1
-                    print(countNum) #รวมไฟล์ไปกี่หน้าแล้ว
-                    writer.addPage(blankPage)
+                    # writer.addPage(blankPage)
+                    writer.addBlankPage()
+                    print(writer.getNumPages())
                     
             else:
                 if file_index != "" and self.showInsertBox.get()==1:
@@ -88,36 +91,39 @@ class run_program(GUI):
                         
                     if self.insertBlank.get() == 1:
                         
-                        writer.addpage(blankPage)
+                        # writer.addpage(blankPage)
+                        writer.addBlankPage()
                         
                 mainLesson = PdfFileReader(open(files[i], "rb"))
-                for ml in range(mainLesson.numPages):
-                    print("เลขหน้า: "+str(ml)+"\nรอบที่: "+str(i))
-                    writer.addPage(mainLesson.getPage(ml))
+                writer.appendPagesFromReader(mainLesson)
+                print(writer.getNumPages())
+                # for ml in range(mainLesson.numPages):
+                #     # print("เลขหน้า: "+str(ml)+"\nรอบที่: "+str(i))
+                #     writer.addPage(mainLesson.getPage(ml))
                 if self.insertBlank.get() == 1:
                     is_insert = self.is_odd(PdfFileReader(open(files[i], "rb")).numPages)
                     #writer.addpages(pdfrw.PdfFileReader(files[i]).pages)
                     if len(files)-1 == i and is_insert == False:
-                        writer.addPage(blankPage)
-                        writer.addPage(blankPage)   
+                        # writer.addPage(blankPage)
+                        # writer.addPage(blankPage)   
+                        writer.addBlankPage()
+                        writer.addBlankPage()
                 
                     if is_insert:
-                        writer.addPage(blankPage)   
-                    
-                                    
-                
+                        # writer.addPage(blankPage)   
+                        writer.addBlankPage()
         if outfile[-4:].lower() == ".pdf":
             saveTo = os.path.join(cur_dir, outfile)
         else:
             saveTo = os.path.join(cur_dir, outfile+".pdf")
-        path_log = os.path.join(os.path.dirname(os.path.realpath(__file__)),"log")
-        genName = datetime.datetime.now().strftime("%y%m%d_%S%M%H.pdf")
-        if(os.path.exists(path_log)==False):
-            os.mkdir(path_log)
-            if(os.path.exists(os.path.join(path_log, "files"))==False):
-                os.mkdir(os.path.join(path_log, "files"))
+        # path_log = os.path.join(os.path.dirname(os.path.realpath(__file__)),"log")
+        # genName = datetime.datetime.now().strftime("%y%m%d_%S%M%H.pdf")
+        # if(os.path.exists(path_log)==False):
+        #     os.mkdir(path_log)
+        #     if(os.path.exists(os.path.join(path_log, "files"))==False):
+        #         os.mkdir(os.path.join(path_log, "files"))
         test = writer.write(open(saveTo,'wb'))  
-        writer.write(open(os.path.join(path_log, os.path.join("files",genName)), "wb"))
+        # writer.write(open(os.path.join(path_log, os.path.join("files",genName)), "wb"))
         return saveTo
 
     def mark_1side(self, event):
@@ -178,6 +184,14 @@ class run_program(GUI):
                 tkinter.messagebox.showerror("รวมไฟล์","ไม่สามารถรวมไฟล์ได้เนื่องจากจำนวนบทกับจำนวนหน้าไม่เท่ากัน")
             else:
                 tkinter.messagebox.showinfo("รวมไฟล์","รวมไฟล์สำเรียบร้อยไฟล์จะเก็บไว้ที่ "+saveTo)
+                path_log = os.path.join(self.MAIN_PATH,"log")
+                genName = datetime.datetime.now().strftime("%y%m%d_%S%M%H.pdf")
+                if(os.path.exists(path_log)==False):
+                    os.mkdir(path_log)
+                    if(os.path.exists(os.path.join(path_log, "files"))==False):
+                        os.mkdir(os.path.join(path_log, "files"))
+                path_log_file = os.path.join(path_log, "files")
+                shutil.copy2(saveTo, os.path.join(path_log_file, genName))
         except Exception as e:
             print(e.args)
             if e.args[0] == "list index out of range":
