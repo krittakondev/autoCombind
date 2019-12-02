@@ -83,9 +83,8 @@ class run_program(GUI):
                     if readFile.numPages == len(self.listFile.get(0,"end")): 
                         #add_index = self.add_pageInfo(readFile.pages[i], "index_insert")
                     
-                        writer.addpage(readFile.getPage(i))
+                        writer.addPage(readFile.getPage(i))
                     else:
-                        print(readFile.numPages)
                         print(len(self.listFile.get("end")))
                         return "หน้าคั่นไม่เท่ากัน"
                         
@@ -96,7 +95,6 @@ class run_program(GUI):
                         
                 mainLesson = PdfFileReader(open(files[i], "rb"))
                 writer.appendPagesFromReader(mainLesson)
-                print(writer.getNumPages())
                 # for ml in range(mainLesson.numPages):
                 #     # print("เลขหน้า: "+str(ml)+"\nรอบที่: "+str(i))
                 #     writer.addPage(mainLesson.getPage(ml))
@@ -112,6 +110,7 @@ class run_program(GUI):
                     if is_insert:
                         # writer.addPage(blankPage)   
                         writer.addBlankPage()
+            print(writer.getNumPages())
         if outfile[-4:].lower() == ".pdf":
             saveTo = os.path.join(cur_dir, outfile)
         else:
@@ -123,6 +122,7 @@ class run_program(GUI):
         #     if(os.path.exists(os.path.join(path_log, "files"))==False):
         #         os.mkdir(os.path.join(path_log, "files"))
         test = writer.write(open(saveTo,'wb'))  
+        print("seaved")
         # writer.write(open(os.path.join(path_log, os.path.join("files",genName)), "wb"))
         return saveTo
 
