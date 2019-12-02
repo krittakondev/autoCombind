@@ -121,8 +121,9 @@ class run_program(GUI):
         #     os.mkdir(path_log)
         #     if(os.path.exists(os.path.join(path_log, "files"))==False):
         #         os.mkdir(os.path.join(path_log, "files"))
+        print("saving")
         test = writer.write(open(saveTo,'wb'))  
-        print("seaved")
+        print("saved")
         # writer.write(open(os.path.join(path_log, os.path.join("files",genName)), "wb"))
         return saveTo
 
