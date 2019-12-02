@@ -175,7 +175,21 @@ class run_program(GUI):
                 pages.append(r.getDestinationPageNumber(bm))
         return pages
     def listToStrFormat(self, inList=[]):
+        start = inList[0]
+        end = inList[0]
+        total = ""
         inList = sorted(inList)
+        for i in range(len(inList)):
+            if inList[i] == inList[i+1]-1: # ถ้าค่าindexของinList ไปเท่ากับ index ของ inListตัวถัดไป
+                end = inList[i+1]
+            else:
+                if start >= end:
+                    total += str(start)+","
+                else:
+                    total += str(start)+"-"+str(end)+","
+                start = inList[i+1]
+        return total
+
 
 
     def showNum_onSelected(self, event):
@@ -210,7 +224,8 @@ class run_program(GUI):
                     if(os.path.exists(os.path.join(path_log, "files"))==False):
                         os.mkdir(os.path.join(path_log, "files"))
                 path_log_file = os.path.join(path_log, "files")
-                # self.searchBookmarkPages(saveTo, "blank")
+                bm = self.searchBookmarkPages(saveTo, "blank")
+                #print(self.listToStrFormat(bm))
                 shutil.copy2(saveTo, os.path.join(path_log_file, genName))
         except Exception as e:
             print(e.args)
