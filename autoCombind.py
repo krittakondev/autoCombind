@@ -50,8 +50,8 @@ class run_program(GUI):
             return True
 
     def combind_loop(self, files, file_index, fileHeader=[], outfile="ไฟล์รวม"):
-        blankPage = "blank.pdf"
-        blankPage = PdfFileReader(open(blankPage,"rb")).getPage(0)
+        #blankPage = "blank.pdf"
+        #blankPage = PdfFileReader(open(blankPage,"rb")).getPage(0)
         countNum = 0
         writer = PdfFileWriter()
         cur_dir = os.path.dirname(files[0])
@@ -65,6 +65,7 @@ class run_program(GUI):
                 if self.is_odd(pagesHead.numPages):
                     # writer.addPage(blankPage)
                     writer.addBlankPage()
+                    writer.addBookmark("blank", writer.getNumPages()-1)
                         # else:
                         #     page_list.append()
            
@@ -75,6 +76,7 @@ class run_program(GUI):
                     writer.addPage(_1page.getPage(_1))
                     # writer.addPage(blankPage)
                     writer.addBlankPage()
+                    writer.addBookmark("blank", writer.getNumPages()-1)
                     print(writer.getNumPages())
                     
             else:
@@ -84,6 +86,7 @@ class run_program(GUI):
                         #add_index = self.add_pageInfo(readFile.pages[i], "index_insert")
                     
                         writer.addPage(readFile.getPage(i))
+
                     else:
                         print(len(self.listFile.get("end")))
                         return "หน้าคั่นไม่เท่ากัน"
@@ -92,6 +95,7 @@ class run_program(GUI):
                         
                         # writer.addpage(blankPage)
                         writer.addBlankPage()
+                        writer.addBookmark("blank", writer.getNumPages()-1)
                         
                 mainLesson = PdfFileReader(open(files[i], "rb"))
                 writer.appendPagesFromReader(mainLesson)
@@ -105,11 +109,14 @@ class run_program(GUI):
                         # writer.addPage(blankPage)
                         # writer.addPage(blankPage)   
                         writer.addBlankPage()
+                        writer.addBookmark("blank", writer.getNumPages())
                         writer.addBlankPage()
+                        writer.addBookmark("blank", writer.getNumPages())
                 
                     if is_insert:
                         # writer.addPage(blankPage)   
                         writer.addBlankPage()
+                        writer.addBookmark("blank", writer.getNumPages())
             print(writer.getNumPages())
         if outfile[-4:].lower() == ".pdf":
             saveTo = os.path.join(cur_dir, outfile)
