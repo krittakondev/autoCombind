@@ -166,6 +166,18 @@ class run_program(GUI):
         self.listFile.delete(cur_se)
         self.listFile.event_generate("<<UpdateValue>>")
     
+    def searchBookmarkPages(self, loFile, val):
+        pages = []
+        r = PdfFileReader(open(loFile, "rb"))
+        all_bookmark = r.getOutlines()
+        for bm in all_bookmark:
+            if bm["/Title"] == val:
+                pages.append(r.getDestinationPageNumber(bm))
+        return pages
+    def listToStrFormat(self, inList=[]):
+        inList = sorted(inList)
+
+
     def showNum_onSelected(self, event):
         try:
             self.listFile.insert(self.remem[0], self.remem[1])
@@ -198,6 +210,7 @@ class run_program(GUI):
                     if(os.path.exists(os.path.join(path_log, "files"))==False):
                         os.mkdir(os.path.join(path_log, "files"))
                 path_log_file = os.path.join(path_log, "files")
+                # self.searchBookmarkPages(saveTo, "blank")
                 shutil.copy2(saveTo, os.path.join(path_log_file, genName))
         except Exception as e:
             print(e.args)
