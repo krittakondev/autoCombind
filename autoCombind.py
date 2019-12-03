@@ -147,6 +147,7 @@ class run_program(GUI):
             self.listFile.itemconfig(cur[0], {"fg": "black"})
         else:
             self.listFile.itemconfig(cur[0], {"fg":"red"})
+        self.listFile.selection_clear(0, tkinter.END)
 
     def onclick_seFile(self, event=""):
         files = self.fileSelect()
