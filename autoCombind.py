@@ -53,6 +53,7 @@ class run_program(GUI):
     def combind_loop(self, files, file_index, fileHeader=[], outfile="ไฟล์รวม"):
         #blankPage = "blank.pdf"
         #blankPage = PdfFileReader(open(blankPage,"rb")).getPage(0)
+        print("starting combind...\n")
         countNum = 0
         writer = PdfFileWriter()
         cur_dir = os.path.dirname(files[0])
@@ -181,7 +182,7 @@ class run_program(GUI):
             if bm["/Title"] == val:
                 pageNum = r.getDestinationPageNumber(bm)
                 if pageNum not in pages: 
-                    pages.append(pageNum)
+                    pages.append(pageNum+1)
         return pages
     def listToStrFormat(self, inList=[]):
         if len(inList) == 0:
@@ -190,9 +191,9 @@ class run_program(GUI):
         end = inList[0]
         total = ""
         inList = sorted(inList)
+
         for i in range(len(inList)):
-            if (len(inList) != i+1):
-                    
+            if len(inList)-1 != i:
                 if inList[i] == inList[i+1]-1: # ถ้าค่าindexของinList ไปเท่ากับ index ของ inListตัวถัดไป
                     end = inList[i+1]
                 else:
@@ -201,6 +202,12 @@ class run_program(GUI):
                     else:
                         total += str(start)+"-"+str(end)+","
                     start = inList[i+1]
+            else:
+                if start >= end:
+                    total += str(start)+","
+                else:
+                    total += str(start)+"-"+str(end)+","
+
         return total[:-1]
 
 
@@ -230,29 +237,30 @@ class run_program(GUI):
                 tkinter.messagebox.showerror("รวมไฟล์","ไม่สามารถรวมไฟล์ได้เนื่องจากจำนวนบทกับจำนวนหน้าไม่เท่ากัน")
             else:
                 askOpen = tkinter.messagebox.askquestion("รวมไฟล์","รวมไฟล์สำเรียบร้อยไฟล์จะเก็บไว้ที่ "+saveTo+" ต้องการเปิดไฟล์เลยหรือไม่?")
-                if (askOpen):
+                if (askOpen=="yes"):
                     subprocess.Popen([saveTo], shell=True)
                     #os.startfile(saveTo, 'acrobat')
-                path_log = os.path.join(self.MAIN_PATH,"log")
+                path_log = os.path.realpath(os.path.join(self.MAIN_PATH,"log"))
                 genName = datetime.datetime.now().strftime("%y%m%d_%S%M%H.pdf")
-                if(os.path.exists(path_log)==False):
+                print("check dir")
+                if(os.path.isdir(path_log)==False):
                     os.mkdir(path_log)
-                    if(os.path.exists(os.path.join(path_log, "files"))==False):
-                        os.mkdir(os.path.join(path_log, "files"))
+                if(os.path.isdir(os.path.join(path_log, "files"))==False):
+                    print("make dir")
+                    os.mkdir(os.path.join(path_log, "files"))
                 path_log_file = os.path.join(path_log, "files")
-                bm = self.searchBookmarkPages(saveTo, "blank")
-                blank_list = self.listToStrFormat(bm)
+                blank_list = self.listToStrFormat(self.searchBookmarkPages(saveTo, "blank"))
                 index_list = self.listToStrFormat(self.searchBookmarkPages(saveTo, "คั่น"))
                 msgHeader = "# "+os.path.basename(saveTo)+"\n\n"
-                msgBlank = "[หน้าขาว]"
-                msgIndexPage = "[หน้าคั่น]"
                 msgTotal = msgHeader+"[หน้าขาว]\n"+blank_list+"\n\n[หน้าคั่น]\n"+index_list+"\n\n"
+                print(blank_list, index_list)
                 with open(saveTo+".txt", "w",encoding="utf8") as info:
                     info.writelines(msgTotal)
-                shutil.copy2(saveTo, os.path.join(path_log, genName+".txt"))
+                shutil.copy2(saveTo+".txt", os.path.join(path_log, genName+".txt"))
                 shutil.copy2(saveTo, os.path.join(path_log_file, genName))
         except Exception as e:
             print(e)
+            #print(help(dir))
             print(e.args)
             if e.args[0] == "list index out of range":
 
