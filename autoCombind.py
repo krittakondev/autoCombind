@@ -115,9 +115,9 @@ class run_program(GUI):
                         # writer.addPage(blankPage)
                         # writer.addPage(blankPage)   
                         writer.addBlankPage()
-                        writer.addBookmark("blank", writer.getNumPages()-1)
-                        writer.addBlankPage()
-                        writer.addBookmark("blank", writer.getNumPages()-1)
+                        writer.addBookmark("blankLast", writer.getNumPages()-1)
+                        # writer.addBlankPage()
+                        # writer.addBookmark("blank", writer.getNumPages()-1)
                 
                     if is_insert:
                         # writer.addPage(blankPage)   
@@ -175,15 +175,17 @@ class run_program(GUI):
         self.listFile.delete(cur_se)
         self.listFile.event_generate("<<UpdateValue>>")
     
-    def searchBookmarkPages(self, loFile, val):
+    def searchBookmarkPages(self, loFile, val, startZero=False):
         pages = []
         r = PdfFileReader(open(loFile, "rb"))
         all_bookmark = r.getOutlines()
         for bm in all_bookmark:
             if bm["/Title"] == val:
                 pageNum = r.getDestinationPageNumber(bm)
+                if(startZero == False):
+                    pageNum += 1
                 if pageNum not in pages: 
-                    pages.append(pageNum+1)
+                    pages.append(pageNum)
         return pages
     def listToStrFormat(self, inList=[]):
         if len(inList) == 0:
@@ -273,6 +275,8 @@ class run_program(GUI):
                 tkinter.messagebox.showerror("รวมไฟล์","ไม่สามารถsaveไฟล์ได้เนื่องจากไฟล์กำลังเปิดอยู่ โปรดใช้ชื่อใหม่หรือปิดไฟล์pdfที่เปิดอยู่ออก")
             elif e.args[0] == "Could not read PDF file เลือกไฟล์หน้าคั่นบท":
                 tkinter.messagebox.showerror("รวมไฟล์","คุณยังไม่ได้เลือกหน้าคั่น โปรดเลือกหน้าคั่น")
+            else:
+                tkinter.messagebox.showerror("เกิด error", str(e))
     def onKey_listFile(self, event):
         if event.keysym == "Prior":
             self.select_up()
