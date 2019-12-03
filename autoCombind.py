@@ -180,15 +180,17 @@ class run_program(GUI):
         total = ""
         inList = sorted(inList)
         for i in range(len(inList)):
-            if inList[i] == inList[i+1]-1: # ถ้าค่าindexของinList ไปเท่ากับ index ของ inListตัวถัดไป
-                end = inList[i+1]
-            else:
-                if start >= end:
-                    total += str(start)+","
+            if (len(inList) != i+1):
+                    
+                if inList[i] == inList[i+1]-1: # ถ้าค่าindexของinList ไปเท่ากับ index ของ inListตัวถัดไป
+                    end = inList[i+1]
                 else:
-                    total += str(start)+"-"+str(end)+","
-                start = inList[i+1]
-        return total
+                    if start >= end:
+                        total += str(start)+","
+                    else:
+                        total += str(start)+"-"+str(end)+","
+                    start = inList[i+1]
+        return total[:-1]
 
 
 
@@ -225,7 +227,13 @@ class run_program(GUI):
                         os.mkdir(os.path.join(path_log, "files"))
                 path_log_file = os.path.join(path_log, "files")
                 bm = self.searchBookmarkPages(saveTo, "blank")
-                #print(self.listToStrFormat(bm))
+                blank_list = self.listToStrFormat(bm)
+                msgHeader = "# "+os.path.basename(saveTo)+"\n\n"
+                msgBlank = "[หน้าขาว]\n"+blank_list+"\n"
+                msgTotal = msgHeader+msgBlank
+                with open(saveTo+".info", "w",encoding="utf8") as info:
+                    info.write(msgTotal)
+                shutil.copy2(saveTo, os.path.join(path_log, genName+".info"))
                 shutil.copy2(saveTo, os.path.join(path_log_file, genName))
         except Exception as e:
             print(e.args)
