@@ -244,12 +244,12 @@ class run_program(GUI):
                 blank_list = self.listToStrFormat(bm)
                 index_list = self.listToStrFormat(self.searchBookmarkPages(saveTo, "คั่น"))
                 msgHeader = "# "+os.path.basename(saveTo)+"\n\n"
-                msgBlank = "[หน้าขาว]\n"+blank_list+"\n\n"
-                msgIndexPage = "[หน้าคั่น]\n"+index_list+"\n\n"
-                msgTotal = msgHeader+msgBlank+index_list
+                msgBlank = "[หน้าขาว]"
+                msgIndexPage = "[หน้าคั่น]"
+                msgTotal = msgHeader+"[หน้าขาว]\n"+blank_list+"\n\n[หน้าคั่น]\n"+index_list+"\n\n"
                 with open(saveTo+".txt", "w",encoding="utf8") as info:
-                    info.write(msgTotal)
-                shutil.copy2(saveTo, os.path.join(path_log, genName+".info"))
+                    info.writelines(msgTotal)
+                shutil.copy2(saveTo, os.path.join(path_log, genName+".txt"))
                 shutil.copy2(saveTo, os.path.join(path_log_file, genName))
         except Exception as e:
             print(e)
@@ -261,7 +261,7 @@ class run_program(GUI):
                 tkinter.messagebox.showerror("เกิด error", str(e))
             
             elif e.args[0] == 13:
-                tkinter.messagebox.showerror("รวมไฟล์","ไม่สามารถsaveไฟล์ได้เนื่องจากไฟล์กำลังเปิดอยู่")
+                tkinter.messagebox.showerror("รวมไฟล์","ไม่สามารถsaveไฟล์ได้เนื่องจากไฟล์กำลังเปิดอยู่ โปรดใช้ชื่อใหม่หรือปิดไฟล์pdfที่เปิดอยู่ออก")
             elif e.args[0] == "Could not read PDF file เลือกไฟล์หน้าคั่นบท":
                 tkinter.messagebox.showerror("รวมไฟล์","คุณยังไม่ได้เลือกหน้าคั่น โปรดเลือกหน้าคั่น")
     def onKey_listFile(self, event):
