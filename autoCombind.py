@@ -7,6 +7,7 @@ from tkinter import ttk
 import datetime
 from PyPDF2 import PdfFileReader, PdfFileWriter
 import shutil
+import subprocess 
 
 """
 เขียนเพิ่มเติมให้สามารถใช้หน้าคั่นหน้าเดี่ยวกันได้
@@ -56,9 +57,11 @@ class run_program(GUI):
         writer = PdfFileWriter()
         cur_dir = os.path.dirname(files[0])
         page_list = []
+
+        # รวมช่วงไฟล์ header
         if len(fileHeader) > 0:
             for head in fileHeader:
-                pagesHead = PdfFileReader(open(head, "rb"))
+                pagesHead = PdfFileReader(open(head, "rb")) 
                 for page in range(pagesHead.numPages):
                     writer.addPage(pagesHead.getPage(page))
                     countNum += 1
@@ -70,6 +73,7 @@ class run_program(GUI):
                         #     page_list.append()
            
         for i in range(len(files)):
+            # ไฟล์ที่มาร์คสีแดง ให้แทรกขาวหลังทุกหน้า 
             if(self.listFile.itemcget(i, "fg")=="red"):
                 _1page = PdfFileReader(open(files[i], 'rb'))
                 for _1 in range(_1page.numPages):
@@ -79,12 +83,14 @@ class run_program(GUI):
                     writer.addBookmark("blank", writer.getNumPages()-1)
                     
             else:
+                # ไฟล์ insert
                 if file_index != "" and self.showInsertBox.get()==1:
                     readFile = PdfFileReader(open(file_index, "rb"))
                     if readFile.numPages == len(self.listFile.get(0,"end")): 
                         #add_index = self.add_pageInfo(readFile.pages[i], "index_insert")
                     
                         writer.addPage(readFile.getPage(i))
+                        writer.addBookmark("คั่น", writer.getNumPages()-1)
 
                     else:
                         print(len(self.listFile.get("end")))
@@ -131,7 +137,8 @@ class run_program(GUI):
         test = writer.write(open(saveTo,'wb'))  
         print("saved")
         # writer.write(open(os.path.join(path_log, os.path.join("files",genName)), "wb"))
-        return saveTo
+        return os.path.realpath(saveTo)
+        #return saveTo
 
     def mark_1side(self, event):
         cur = self.get_listFile()
@@ -172,9 +179,13 @@ class run_program(GUI):
         all_bookmark = r.getOutlines()
         for bm in all_bookmark:
             if bm["/Title"] == val:
-                pages.append(r.getDestinationPageNumber(bm))
+                pageNum = r.getDestinationPageNumber(bm)
+                if pageNum not in pages: 
+                    pages.append(pageNum)
         return pages
     def listToStrFormat(self, inList=[]):
+        if len(inList) == 0:
+            return ""
         start = inList[0]
         end = inList[0]
         total = ""
@@ -218,7 +229,10 @@ class run_program(GUI):
             if saveTo == "หน้าคั่นไม่เท่ากัน":
                 tkinter.messagebox.showerror("รวมไฟล์","ไม่สามารถรวมไฟล์ได้เนื่องจากจำนวนบทกับจำนวนหน้าไม่เท่ากัน")
             else:
-                tkinter.messagebox.showinfo("รวมไฟล์","รวมไฟล์สำเรียบร้อยไฟล์จะเก็บไว้ที่ "+saveTo)
+                askOpen = tkinter.messagebox.askquestion("รวมไฟล์","รวมไฟล์สำเรียบร้อยไฟล์จะเก็บไว้ที่ "+saveTo+" ต้องการเปิดไฟล์เลยหรือไม่?")
+                if (askOpen):
+                    subprocess.Popen([saveTo], shell=True)
+                    #os.startfile(saveTo, 'acrobat')
                 path_log = os.path.join(self.MAIN_PATH,"log")
                 genName = datetime.datetime.now().strftime("%y%m%d_%S%M%H.pdf")
                 if(os.path.exists(path_log)==False):
@@ -228,20 +242,23 @@ class run_program(GUI):
                 path_log_file = os.path.join(path_log, "files")
                 bm = self.searchBookmarkPages(saveTo, "blank")
                 blank_list = self.listToStrFormat(bm)
+                index_list = self.listToStrFormat(self.searchBookmarkPages(saveTo, "คั่น"))
                 msgHeader = "# "+os.path.basename(saveTo)+"\n\n"
-                msgBlank = "[หน้าขาว]\n"+blank_list+"\n"
-                msgTotal = msgHeader+msgBlank
-                with open(saveTo+".info", "w",encoding="utf8") as info:
+                msgBlank = "[หน้าขาว]\n"+blank_list+"\n\n"
+                msgIndexPage = "[หน้าคั่น]\n"+index_list+"\n\n"
+                msgTotal = msgHeader+msgBlank+index_list
+                with open(saveTo+".txt", "w",encoding="utf8") as info:
                     info.write(msgTotal)
                 shutil.copy2(saveTo, os.path.join(path_log, genName+".info"))
                 shutil.copy2(saveTo, os.path.join(path_log_file, genName))
         except Exception as e:
+            print(e)
             print(e.args)
             if e.args[0] == "list index out of range":
 
                         
                 #saveTo = self.combind_loop(self.listFile.get(0, tkinter.END), "", self.fileHeader, self.fileout.get())
-                tkinter.messagebox.showerror("รวมไฟล์","ไม่สามารถรวมไฟล์ได้เนื่องจากจำนวนบทกับจำนวนหน้าไม่เท่ากัน")
+                tkinter.messagebox.showerror("เกิด error", str(e))
             
             elif e.args[0] == 13:
                 tkinter.messagebox.showerror("รวมไฟล์","ไม่สามารถsaveไฟล์ได้เนื่องจากไฟล์กำลังเปิดอยู่")
