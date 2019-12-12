@@ -241,8 +241,8 @@ class run_program(GUI):
             else:
                 askOpen = tkinter.messagebox.askquestion("รวมไฟล์","รวมไฟล์สำเรียบร้อยไฟล์จะเก็บไว้ที่ "+saveTo+" ต้องการเปิดไฟล์เลยหรือไม่?")
                 if (askOpen=="yes"):
-                    subprocess.Popen([saveTo], shell=True)
-                    #os.startfile(saveTo, 'acrobat')
+                    #subprocess.Popen([saveTo], shell=True)
+                    os.startfile(saveTo)
                 path_log = os.path.realpath(os.path.join(self.MAIN_PATH,"log"))
                 genName = datetime.datetime.now().strftime("%y%m%d_%S%M%H.pdf")
                 print("check dir")
@@ -334,6 +334,19 @@ class run_program(GUI):
             self.insert_index.forget()
             self.show_numPages.forget()
             self.frameRadio.forget()
+    def openFile(self,fileIn):
+        print(fileIn)
+        os.startfile(fileIn)
+
+    def menu_combindList(self, event):
+        row_select = self.listFile.nearest(event.y)
+        self.listFile.select_clear(0, "end")
+
+        self.listFile.selection_set(row_select)
+        self.listFile.activate(row_select)
+
+        self.menuListFile.post(event.x_root, event.y_root)
+        print(row_select)
     def main_gui(self):
         self.frame_left = self.add_frame()
         self.frame_right = self.add_frame()
@@ -343,6 +356,7 @@ class run_program(GUI):
         self.frame_right.grid(row=1, column=2)
         self.frame_infoFile.grid(row=2, column=1)
         self.frame_menu.grid(row=2, column=2)
+
         
         self.show_lessonNum = tkinter.Label(self.frame_infoFile, font=("Courier", 15))
         self.show_infoName = tkinter.Label(self.frame_infoFile, font=("Courier", 15))
@@ -350,6 +364,10 @@ class run_program(GUI):
         
         
         self.listFile = tkinter.Listbox(self.frame_left, width=80)
+        self.menuListFile = tkinter.Menu(self.listFile, tearoff=0)
+        self.menuListFile.add_command(label="open file", command=lambda: self.openFile(fileIn=self.listFile.get(self.listFile.curselection())))
+        self.menuListFile.add_command(label="open folder", command=lambda: os.startfile(os.path.dirname(self.listFile.get(self.listFile.curselection()))))
+
         self.insert_index = ttk.Combobox(self.frame_right, values=self.listFile.get(0, tkinter.END), width=40)
         self.insert_index.set("เลือกไฟล์หน้าคั่นบท")
         tkinter.Label(self.frame_left, text="ไฟล์แต่ละบท", font=("Courier", 30)).pack()
@@ -359,6 +377,7 @@ class run_program(GUI):
         self.listFile.bind("<Double-Button-1>", self.onEvent_listFile)
         self.listFile.bind("<<UpdateValue>>", self.update_value)
         self.listFile.bind("<Control-b>", self.mark_1side)
+        self.listFile.bind("<Button-3>", self.menu_combindList)
      
         self.scrollList = tkinter.Scrollbar(self.frame_left, orient="vertical")
         self.scrollList.config(command=self.listFile.yview)
