@@ -341,11 +341,11 @@ class run_program(GUI):
     def menu_combindList(self, event):
         row_select = self.listFile.nearest(event.y)
         self.listFile.select_clear(0, "end")
-
         self.listFile.selection_set(row_select)
         self.listFile.activate(row_select)
 
-        self.menuListFile.post(event.x_root, event.y_root)
+        if(len(self.listFile.curselection()) != 0):
+            self.menuListFile.post(event.x_root, event.y_root)
         print(row_select)
     def main_gui(self):
         self.frame_left = self.add_frame()
@@ -367,6 +367,7 @@ class run_program(GUI):
         self.menuListFile = tkinter.Menu(self.listFile, tearoff=0)
         self.menuListFile.add_command(label="open file", command=lambda: self.openFile(fileIn=self.listFile.get(self.listFile.curselection())))
         self.menuListFile.add_command(label="open folder", command=lambda: os.startfile(os.path.dirname(self.listFile.get(self.listFile.curselection()))))
+        self.menuListFile.add_command(label="delete", command=self.delete_selectedList)
 
         self.insert_index = ttk.Combobox(self.frame_right, values=self.listFile.get(0, tkinter.END), width=40)
         self.insert_index.set("เลือกไฟล์หน้าคั่นบท")
@@ -375,7 +376,7 @@ class run_program(GUI):
         self.listFile.bind("<KeyPress>", self.onKey_listFile)
         #self.listFile.bind("<<ListboxSelect>>", self.onEvent_listFile)
         self.listFile.bind("<Double-Button-1>", self.onEvent_listFile)
-        self.listFile.bind("<<UpdateValue>>", self.update_value)
+        #self.listFile.bind("<<UpdateValue>>", self.update_value)
         self.listFile.bind("<Control-b>", self.mark_1side)
         self.listFile.bind("<Button-3>", self.menu_combindList)
      
@@ -414,7 +415,7 @@ class run_program(GUI):
         #self.get_blankList.pack()
         tkinter.Button(self.frame_menu, text="เลือกไฟล์", font=("Courier", 13), command=lambda: self.onclick_seFile(), fg="yellow", bg="#999999").pack()
         tkinter.Button(self.frame_menu, text="clear", command=lambda: self.clear_alllist()).pack()
-        tkinter.Button(self.frame_menu, text="delete", command=lambda: self.delete_selectedList()).pack()
+        #tkinter.Button(self.frame_menu, text="delete", command=lambda: self.delete_selectedList()).pack()
         defaultName = tkinter.StringVar()
         defaultName.set("รวมไฟล์")
         self.fileout = ttk.Entry(self.frame_menu, font=("Courier", 13), textvariable=defaultName)
