@@ -221,7 +221,7 @@ class run_program(GUI):
         except AttributeError:
             pass
         selected = self.insert_index.get()
-        self.numPagesInsert = len(pdfrw.PdfFileReader(selected).pages)
+        self.numPagesInsert = PdfFileReader(open(selected, 'rb')).getNumPages()
         self.show_numPages.config(text=str(self.numPagesInsert)+" คั่นบท")
         index_selected = self.listFile.get(0, "end").index(self.insert_index.get())
         
@@ -289,14 +289,15 @@ class run_program(GUI):
     def onEvent_listFile(self, event):
         cur_se = self.listFile.curselection()
         self.infoPage["name"] = os.path.basename(self.listFile.get(cur_se))
-        self.infoPage["num"] = str(len(pdfrw.PdfReader(self.listFile.get(cur_se)).pages))
+        self.infoPage["num"] = str(PdfFileReader(open(self.listFile.get(cur_se), 'rb')).getNumPages())
         self.infoPage["lesson_num"] = str(cur_se[0]+1)
         #self.show_infoName.forget()
+        self.show_lessonNum.config(text="ไฟล์ที่: "+self.infoPage["lesson_num"])
         self.show_infoName.config(text="ชื่อไฟล์: "+self.infoPage["name"])
         self.show_infoNum.config(text="จำนวนหน้า: "+self.infoPage["num"])
-        self.show_lessonNum.config(text="บทที่: "+self.infoPage["lesson_num"])
-        self.show_infoName.pack()
+        
         self.show_lessonNum.pack()
+        self.show_infoName.pack()
         self.show_infoNum.pack()
         
 
@@ -343,9 +344,10 @@ class run_program(GUI):
         self.frame_infoFile.grid(row=2, column=1)
         self.frame_menu.grid(row=2, column=2)
         
+        self.show_lessonNum = tkinter.Label(self.frame_infoFile, font=("Courier", 15))
         self.show_infoName = tkinter.Label(self.frame_infoFile, font=("Courier", 15))
         self.show_infoNum = tkinter.Label(self.frame_infoFile, font=("Courier", 15))
-        self.show_lessonNum = tkinter.Label(self.frame_infoFile, font=("Courier", 15))
+        
         
         self.listFile = tkinter.Listbox(self.frame_left, width=80)
         self.insert_index = ttk.Combobox(self.frame_right, values=self.listFile.get(0, tkinter.END), width=40)
@@ -353,7 +355,8 @@ class run_program(GUI):
         tkinter.Label(self.frame_left, text="ไฟล์แต่ละบท", font=("Courier", 30)).pack()
         self.listFile.pack(side=tkinter.LEFT)
         self.listFile.bind("<KeyPress>", self.onKey_listFile)
-        self.listFile.bind("<<ListboxSelect>>", self.onEvent_listFile)
+        #self.listFile.bind("<<ListboxSelect>>", self.onEvent_listFile)
+        self.listFile.bind("<Double-Button-1>", self.onEvent_listFile)
         self.listFile.bind("<<UpdateValue>>", self.update_value)
         self.listFile.bind("<Control-b>", self.mark_1side)
      
@@ -385,17 +388,17 @@ class run_program(GUI):
         self.show_insert.pack()
         #self.show_numPages.pack()
         self.insertBlank = tkinter.IntVar()
-        self.blankList = tkinter.IntVar()
+        #elf.blankList = tkinter.IntVar()
         self.show_insertBlank = tkinter.Checkbutton(self.frame_right,text="แทรกหน้าขาวถ้าไม่เข้าคู่",font=("", 13), variable=self.insertBlank)
-        self.get_blankList = tkinter.Checkbutton(self.frame_right,text="เลขหน้าแทนการแทรกขาว",font=("", 13), variable=self.blankList)
+        #self.get_blankList = tkinter.Checkbutton(self.frame_right,text="เลขหน้าแทนการแทรกขาว",font=("", 13), variable=self.blankList)
         self.show_insertBlank.pack()
-        self.get_blankList.pack()
+        #self.get_blankList.pack()
         tkinter.Button(self.frame_menu, text="เลือกไฟล์", font=("Courier", 13), command=lambda: self.onclick_seFile(), fg="yellow", bg="#999999").pack()
         tkinter.Button(self.frame_menu, text="clear", command=lambda: self.clear_alllist()).pack()
         tkinter.Button(self.frame_menu, text="delete", command=lambda: self.delete_selectedList()).pack()
         defaultName = tkinter.StringVar()
         defaultName.set("รวมไฟล์")
-        self.fileout = tkinter.Entry(self.frame_menu, font=("Courier", 13), textvariable=defaultName)
+        self.fileout = ttk.Entry(self.frame_menu, font=("Courier", 13), textvariable=defaultName)
         self.fileout.pack()
         tkinter.Button(self.frame_menu, text="combind", fg="pink", bg="green", command=lambda: self.onclick_combind()).pack()
         self.root.bind_all("<Control-o>", self.onclick_seFile)
