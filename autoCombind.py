@@ -7,7 +7,8 @@ from tkinter import ttk
 import datetime
 from PyPDF2 import PdfFileReader, PdfFileWriter
 import shutil
-import subprocess 
+import subprocess
+from tkinter import simpledialog 
 
 """
 เขียนเพิ่มเติมให้สามารถใช้หน้าคั่นหน้าเดี่ยวกันได้
@@ -50,7 +51,7 @@ class run_program(GUI):
         else:
             return True
 
-    def combind_loop(self, files, file_index, fileHeader=[], outfile="ไฟล์รวม"):
+    def combind_loop(self, files, file_index, fileHeader=[], outfile="ไฟล์รวม", passwd=None):
         #blankPage = "blank.pdf"
         #blankPage = PdfFileReader(open(blankPage,"rb")).getPage(0)
         print("starting combind...\n")
@@ -134,8 +135,13 @@ class run_program(GUI):
         #     os.mkdir(path_log)
         #     if(os.path.exists(os.path.join(path_log, "files"))==False):
         #         os.mkdir(os.path.join(path_log, "files"))
+        oFile = open(saveTo,'wb')
         print("saving")
-        test = writer.write(open(saveTo,'wb'))  
+        if passwd != None:
+            print("encrypt...")
+            writer.encrypt(passwd, passwd)
+        test = writer.write(oFile)  
+        oFile.close()
         print("saved")
         # writer.write(open(os.path.join(path_log, os.path.join("files",genName)), "wb"))
         return os.path.realpath(saveTo)
@@ -233,9 +239,29 @@ class run_program(GUI):
         self.listFile.event_generate("<<UpdateValue>>")
     def onclick_combind(self):
         try:
+            passwdChecked = None
+            if self.pdfEncrypt.get() == 1:
+                passwd = simpledialog.askstring("ใส่รหัสผ่าน", "Enter password", parent=self.root, show="*")
+                if passwd == None:
+                    return False
+                elif len(passwd) <= 5:
+                    tkinter.messagebox.showerror("รหัสผ่านผิดพลาด", "โปรดกรอกรหัส 6 ตัวขึ้นไป")
+                    return False
+                else:
+                    passwdNew = simpledialog.askstring("ใส่รหัสผ่านอีกครั้ง", "Enter password again", parent=self.root, show="*")
+                    if passwdNew == None:
+                        return False
+                    elif len(passwdNew) <= 5:
+                        tkinter.messagebox.showerror("รหัสผ่านผิดพลาด", "โปรดกรอกรหัส 6 ตัวขึ้นไป")
+                        return False
+                    if passwd == passwdNew:
+                        passwdChecked = passwdNew
+                    else:
+                        tkinter.messagebox.showerror("รหัสผ่านผิดพลาด", "โปรดกรอกรหัสให้ตรงกันทั้งสองครั้ง")
+                        return False
             #index_selected = self.listFile.get(0, "end").index(self.insert_index.get())
             #self.listFile.delete(index_selected)
-            saveTo = self.combind_loop(self.listFile.get(0, tkinter.END), self.insert_index.get(), self.fileHeader, self.fileout.get())
+            saveTo = self.combind_loop(self.listFile.get(0, tkinter.END), self.insert_index.get(), self.fileHeader, self.fileout.get(), passwd=passwdChecked)
             if saveTo == "หน้าคั่นไม่เท่ากัน":
                 tkinter.messagebox.showerror("รวมไฟล์","ไม่สามารถรวมไฟล์ได้เนื่องจากจำนวนบทกับจำนวนหน้าไม่เท่ากัน")
             else:
@@ -408,10 +434,13 @@ class run_program(GUI):
         self.show_insert.pack()
         #self.show_numPages.pack()
         self.insertBlank = tkinter.IntVar()
+        self.pdfEncrypt = tkinter.IntVar()
         #elf.blankList = tkinter.IntVar()
         self.show_insertBlank = tkinter.Checkbutton(self.frame_right,text="แทรกหน้าขาวถ้าไม่เข้าคู่",font=("", 13), variable=self.insertBlank)
+        self.opt_encrypt = tkinter.Checkbutton(self.frame_right,text="เข้ารหัส",font=("", 13), variable=self.pdfEncrypt)
         #self.get_blankList = tkinter.Checkbutton(self.frame_right,text="เลขหน้าแทนการแทรกขาว",font=("", 13), variable=self.blankList)
         self.show_insertBlank.pack()
+        self.opt_encrypt.pack()
         #self.get_blankList.pack()
         tkinter.Button(self.frame_menu, text="เลือกไฟล์", font=("Courier", 13), command=lambda: self.onclick_seFile(), fg="yellow", bg="#999999").pack()
         tkinter.Button(self.frame_menu, text="clear", command=lambda: self.clear_alllist()).pack()
