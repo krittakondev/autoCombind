@@ -125,6 +125,14 @@ class run_program(GUI):
                         writer.addBlankPage()
                         writer.addBookmark("blank", writer.getNumPages()-1)
             print(writer.getNumPages())
+        outfile = tkinter.filedialog.asksaveasfilename(title="ตั้งชื่อไฟล์รวม", filetypes=(("file pdf", "*.pdf"), ("file all", "*.*")))
+        
+        while(outfile == "" or outfile == None):
+            ask_resave = tkinter.messagebox.askquestion("การsaveไฟล์", "โปรแกรมcombindไฟล์เสร็จเรียบร้อยแล้วแต่คุณยังไม่ได้บันทึกไฟล์ คุณต้องการกลับไปsaveไฟล์ใหม่หรือไม่?", icon="warning")
+            if(ask_resave == "yes"):
+                outfile = tkinter.filedialog.asksaveasfilename(title="ตั้งชื่อไฟล์รวม", filetypes=(("file pdf", "*.pdf"), ("file all", "*.*")))
+            else:
+                return None
         if outfile[-4:].lower() == ".pdf":
             saveTo = os.path.join(cur_dir, outfile)
         else:
@@ -263,8 +271,8 @@ class run_program(GUI):
             #self.listFile.delete(index_selected)
             saveTo = self.combind_loop(self.listFile.get(0, tkinter.END), self.insert_index.get(), self.fileHeader, self.fileout.get(), passwd=passwdChecked)
             if saveTo == "หน้าคั่นไม่เท่ากัน":
-                tkinter.messagebox.showerror("รวมไฟล์","ไม่สามารถรวมไฟล์ได้เนื่องจากจำนวนบทกับจำนวนหน้าไม่เท่ากัน")
-            else:
+                tkinter.messagebox.showerror("รวมไฟล์","ไม่สามารถรวมไฟล์ได้เนื่องจากจำนวนบทกับจำนวนหน้าไม่เท่ากัน")                
+            elif saveTo != None:
                 askOpen = tkinter.messagebox.askquestion("รวมไฟล์","รวมไฟล์สำเรียบร้อยไฟล์จะเก็บไว้ที่ "+saveTo+" ต้องการเปิดไฟล์เลยหรือไม่?")
                 if (askOpen=="yes"):
                     #subprocess.Popen([saveTo], shell=True)
@@ -364,6 +372,7 @@ class run_program(GUI):
         print(fileIn)
         os.startfile(fileIn)
 
+
     def menu_combindList(self, event):
         row_select = self.listFile.nearest(event.y)
         self.listFile.select_clear(0, "end")
@@ -374,6 +383,7 @@ class run_program(GUI):
             self.menuListFile.post(event.x_root, event.y_root)
         print(row_select)
     def main_gui(self):
+
         self.frame_left = self.add_frame()
         self.frame_right = self.add_frame()
         self.frame_infoFile = self.add_frame()
@@ -448,8 +458,8 @@ class run_program(GUI):
         defaultName = tkinter.StringVar()
         defaultName.set("รวมไฟล์")
         self.fileout = ttk.Entry(self.frame_menu, font=("Courier", 13), textvariable=defaultName)
-        self.fileout.pack()
-        tkinter.Button(self.frame_menu, text="combind", fg="pink", bg="green", command=lambda: self.onclick_combind()).pack()
+        #self.fileout.pack()
+        tkinter.Button(self.frame_menu , text="action", command=lambda: self.onclick_combind()).pack(pady=10, ipadx=50, padx=10)
         self.root.bind_all("<Control-o>", self.onclick_seFile)
         self.root.mainloop()
     
