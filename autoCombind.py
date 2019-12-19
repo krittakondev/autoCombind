@@ -245,7 +245,7 @@ class run_program(GUI):
     def delete_selectedList(self):
         self.listFile.delete(self.get_listFile())
         self.listFile.event_generate("<<UpdateValue>>")
-    def onclick_combind(self):
+    def onclick_actions(self):
         try:
             passwdChecked = None
             if self.pdfEncrypt.get() == 1:
@@ -382,10 +382,37 @@ class run_program(GUI):
         if(len(self.listFile.curselection()) != 0):
             self.menuListFile.post(event.x_root, event.y_root)
         print(row_select)
+
+    def combind_gui(self):
+        self.insert_index = ttk.Combobox(self.frame_options, values=self.listFile.get(0, tkinter.END), width=40)
+        self.insert_index.set("เลือกไฟล์หน้าคั่นบท")
+        self.insert_index.bind("<<ComboboxSelected>>", self.showNum_onSelected)
+        self.show_numPages = tkinter.Label(self.frame_opitons ,font=("Courier", 13), text="0 คั่นบท", fg="red")
+        
+        self.showInsertBox = tkinter.IntVar()
+        self.show_insert = tkinter.Checkbutton(self.frame_options,text="หน้าคั่นบท",font=("Courier", 13), variable=self.showInsertBox, command=self.check_box)
+        self.show_insert.pack()
+        #self.show_numPages.pack()
+        self.insertBlank = tkinter.IntVar()
+        self.pdfEncrypt = tkinter.IntVar()
+        #elf.blankList = tkinter.IntVar()
+        self.show_insertBlank = tkinter.Checkbutton(self.frame_options,text="แทรกหน้าขาวถ้าไม่เข้าคู่",font=("", 13), variable=self.insertBlank)
+        self.opt_encrypt = tkinter.Checkbutton(self.frame_options,text="เข้ารหัส",font=("", 13), variable=self.pdfEncrypt)
+        #self.get_blankList = tkinter.Checkbutton(self.frame_right,text="เลขหน้าแทนการแทรกขาว",font=("", 13), variable=self.blankList)
+        self.show_insertBlank.pack()
+        self.opt_encrypt.pack()
+
+    def menuRightClick(self):
+        self.menuListFile = tkinter.Menu(self.listFile, tearoff=0)
+        self.menuListFile.add_command(label="open file", command=lambda: self.openFile(fileIn=self.listFile.get(self.listFile.curselection())))
+        self.menuListFile.add_command(label="open folder", command=lambda: os.startfile(os.path.dirname(self.listFile.get(self.listFile.curselection()))))
+        self.menuListFile.add_command(label="delete", command=self.delete_selectedList)
+
     def main_gui(self):
 
         self.frame_left = self.add_frame()
         self.frame_right = self.add_frame()
+        self.frame_options = ttk.LabelFrame(text="options")
         self.frame_infoFile = self.add_frame()
         self.frame_menu = self.add_frame()
         self.frame_left.grid(row=1, column=1)
@@ -400,13 +427,10 @@ class run_program(GUI):
         
         
         self.listFile = tkinter.Listbox(self.frame_left, width=80)
-        self.menuListFile = tkinter.Menu(self.listFile, tearoff=0)
-        self.menuListFile.add_command(label="open file", command=lambda: self.openFile(fileIn=self.listFile.get(self.listFile.curselection())))
-        self.menuListFile.add_command(label="open folder", command=lambda: os.startfile(os.path.dirname(self.listFile.get(self.listFile.curselection()))))
-        self.menuListFile.add_command(label="delete", command=self.delete_selectedList)
 
-        self.insert_index = ttk.Combobox(self.frame_right, values=self.listFile.get(0, tkinter.END), width=40)
-        self.insert_index.set("เลือกไฟล์หน้าคั่นบท")
+        self.menuRightClick()
+        self.combind_gui()
+
         tkinter.Label(self.frame_left, text="ไฟล์แต่ละบท", font=("Courier", 30)).pack()
         self.listFile.pack(side=tkinter.LEFT)
         self.listFile.bind("<KeyPress>", self.onKey_listFile)
@@ -430,36 +454,16 @@ class run_program(GUI):
         downImage = downImage.subsample(25,25)
         tkinter.Button(self.frame_left, image=upImage, command=self.select_up).pack()
         tkinter.Button(self.frame_left, image=downImage, command=self.select_down).pack()
-        tkinter.Button(self.frame_right, text="เลือกสาระบัญและปกใน", font=("Courier", 15), command=lambda: self.set_fileHeader()).pack()
+        #tkinter.Button(self.frame_right, text="เลือกสาระบัญและปกใน", font=("Courier", 15), command=lambda: self.set_fileHeader()).pack()
         self.show_numFiles = tkinter.Label(self.frame_left,fg="red",font=("Courier", 15), text="0 บท")
         self.show_numFiles.pack(side=tkinter.LEFT)
-        self.showHead = tkinter.Label(self.frame_right, text="", font=("Courier", 10))
-        self.showHead.pack()
-        #self.insert_index.pack(side=tkinter.LEFT)       
-        self.show_numPages = tkinter.Label(self.frame_right,font=("Courier", 13), text="0 คั่นบท", fg="red")
-        self.insert_index.bind("<<ComboboxSelected>>", self.showNum_onSelected)
-        self.showInsertBox = tkinter.IntVar()
-        self.show_insert = tkinter.Checkbutton(self.frame_right,text="หน้าคั่นบท",font=("Courier", 13), variable=self.showInsertBox, command=self.check_box)
-        self.frameRadio = ttk.Labelframe(self.frame_right, text="options")
-        self.show_insert.pack()
-        #self.show_numPages.pack()
-        self.insertBlank = tkinter.IntVar()
-        self.pdfEncrypt = tkinter.IntVar()
-        #elf.blankList = tkinter.IntVar()
-        self.show_insertBlank = tkinter.Checkbutton(self.frame_right,text="แทรกหน้าขาวถ้าไม่เข้าคู่",font=("", 13), variable=self.insertBlank)
-        self.opt_encrypt = tkinter.Checkbutton(self.frame_right,text="เข้ารหัส",font=("", 13), variable=self.pdfEncrypt)
-        #self.get_blankList = tkinter.Checkbutton(self.frame_right,text="เลขหน้าแทนการแทรกขาว",font=("", 13), variable=self.blankList)
-        self.show_insertBlank.pack()
-        self.opt_encrypt.pack()
+   
+        
+        
         #self.get_blankList.pack()
         tkinter.Button(self.frame_menu, text="เลือกไฟล์", font=("Courier", 13), command=lambda: self.onclick_seFile(), fg="yellow", bg="#999999").pack()
         tkinter.Button(self.frame_menu, text="clear", command=lambda: self.clear_alllist()).pack()
-        #tkinter.Button(self.frame_menu, text="delete", command=lambda: self.delete_selectedList()).pack()
-        defaultName = tkinter.StringVar()
-        defaultName.set("รวมไฟล์")
-        self.fileout = ttk.Entry(self.frame_menu, font=("Courier", 13), textvariable=defaultName)
-        #self.fileout.pack()
-        tkinter.Button(self.frame_menu , text="action", command=lambda: self.onclick_combind()).pack(pady=10, ipadx=50, padx=10)
+        tkinter.Button(self.frame_menu , text="action", command=lambda: self.onclick_actions()).pack(pady=10, ipadx=50, padx=10)
         self.root.bind_all("<Control-o>", self.onclick_seFile)
         self.root.mainloop()
     
