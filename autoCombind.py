@@ -59,7 +59,6 @@ class run_program(GUI):
         writer = PdfFileWriter()
         cur_dir = os.path.dirname(files[0])
         page_list = []
-
         # รวมช่วงไฟล์ header
         if len(fileHeader) > 0:
             for head in fileHeader:
@@ -245,7 +244,7 @@ class run_program(GUI):
     def delete_selectedList(self):
         self.listFile.delete(self.get_listFile())
         self.listFile.event_generate("<<UpdateValue>>")
-    def onclick_actions(self):
+    def onclick_combind(self):
         try:
             passwdChecked = None
             if self.pdfEncrypt.get() == 1:
@@ -360,14 +359,14 @@ class run_program(GUI):
         if self.showInsertBox.get() == 1:
             self.insert_index.pack(side=tkinter.LEFT)
             
-            self.frameRadio.pack()
+            # self.frameRadio.pack()
             #tkinter.Radiobutton(self.frameRadio, text="หน้าเดียว").pack() # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
             #tkinter.Radiobutton(self.frameRadio, text="ทุกหน้า").pack()
             self.show_numPages.pack()
         else:
             self.insert_index.forget()
             self.show_numPages.forget()
-            self.frameRadio.forget()
+            # self.frameRadio.forget()
     def openFile(self,fileIn):
         print(fileIn)
         os.startfile(fileIn)
@@ -384,20 +383,22 @@ class run_program(GUI):
         print(row_select)
 
     def combind_gui(self):
-        self.insert_index = ttk.Combobox(self.frame_options, values=self.listFile.get(0, tkinter.END), width=40)
+        self.combind_opt = tkinter.Frame(self.frame_options)
+        # self.combind_opt.pack()
+        self.insert_index = ttk.Combobox(self.combind_opt, values=self.listFile.get(0, tkinter.END), width=40)
         self.insert_index.set("เลือกไฟล์หน้าคั่นบท")
         self.insert_index.bind("<<ComboboxSelected>>", self.showNum_onSelected)
-        self.show_numPages = tkinter.Label(self.frame_opitons ,font=("Courier", 13), text="0 คั่นบท", fg="red")
+        self.show_numPages = tkinter.Label(self.combind_opt ,font=("Courier", 13), text="0 คั่นบท", fg="red")
         
         self.showInsertBox = tkinter.IntVar()
-        self.show_insert = tkinter.Checkbutton(self.frame_options,text="หน้าคั่นบท",font=("Courier", 13), variable=self.showInsertBox, command=self.check_box)
+        self.show_insert = tkinter.Checkbutton(self.combind_opt,text="หน้าคั่นบท",font=("Courier", 13), variable=self.showInsertBox, command=self.check_box)
         self.show_insert.pack()
         #self.show_numPages.pack()
         self.insertBlank = tkinter.IntVar()
         self.pdfEncrypt = tkinter.IntVar()
         #elf.blankList = tkinter.IntVar()
-        self.show_insertBlank = tkinter.Checkbutton(self.frame_options,text="แทรกหน้าขาวถ้าไม่เข้าคู่",font=("", 13), variable=self.insertBlank)
-        self.opt_encrypt = tkinter.Checkbutton(self.frame_options,text="เข้ารหัส",font=("", 13), variable=self.pdfEncrypt)
+        self.show_insertBlank = tkinter.Checkbutton(self.combind_opt,text="แทรกหน้าขาวถ้าไม่เข้าคู่",font=("", 13), variable=self.insertBlank)
+        self.opt_encrypt = tkinter.Checkbutton(self.combind_opt,text="เข้ารหัส",font=("", 13), variable=self.pdfEncrypt)
         #self.get_blankList = tkinter.Checkbutton(self.frame_right,text="เลขหน้าแทนการแทรกขาว",font=("", 13), variable=self.blankList)
         self.show_insertBlank.pack()
         self.opt_encrypt.pack()
@@ -408,11 +409,31 @@ class run_program(GUI):
         self.menuListFile.add_command(label="open folder", command=lambda: os.startfile(os.path.dirname(self.listFile.get(self.listFile.curselection()))))
         self.menuListFile.add_command(label="delete", command=self.delete_selectedList)
 
+    def check_function(self, *args):
+        self.frame_options.pack()
+        if args[0] == "combind":
+            self.combind_opt.pack()
+            self.but_action.config(command=self.onclick_combind)
+        else:
+            self.combind_opt.forget()
+            self.but_action.config(command="")
+        if args[0] == "to excel":
+            self.excel_opt.pack()
+        else:
+            self.excel_opt.forget()
+            
+    def excel_gui(self):
+        self.excel_opt = tkinter.Frame(self.frame_options)
+        self.excel_opt.pack()
+
+        
+
+
     def main_gui(self):
 
         self.frame_left = self.add_frame()
         self.frame_right = self.add_frame()
-        self.frame_options = ttk.LabelFrame(text="options")
+        self.frame_options = ttk.LabelFrame(self.frame_right,text="options")
         self.frame_infoFile = self.add_frame()
         self.frame_menu = self.add_frame()
         self.frame_left.grid(row=1, column=1)
@@ -427,9 +448,14 @@ class run_program(GUI):
         
         
         self.listFile = tkinter.Listbox(self.frame_left, width=80)
-
+        options = ["combind", "to excel"]
+        self.var_opt = tkinter.StringVar()
+        self.var_opt.set("select function")
+        self.func_select = tkinter.OptionMenu(self.frame_right, self.var_opt, *options, command=self.check_function)
+        self.func_select.pack()
         self.menuRightClick()
         self.combind_gui()
+        self.excel_gui()
 
         tkinter.Label(self.frame_left, text="ไฟล์แต่ละบท", font=("Courier", 30)).pack()
         self.listFile.pack(side=tkinter.LEFT)
@@ -463,7 +489,8 @@ class run_program(GUI):
         #self.get_blankList.pack()
         tkinter.Button(self.frame_menu, text="เลือกไฟล์", font=("Courier", 13), command=lambda: self.onclick_seFile(), fg="yellow", bg="#999999").pack()
         tkinter.Button(self.frame_menu, text="clear", command=lambda: self.clear_alllist()).pack()
-        tkinter.Button(self.frame_menu , text="action", command=lambda: self.onclick_actions()).pack(pady=10, ipadx=50, padx=10)
+        self.but_action = tkinter.Button(self.frame_menu , text="action")
+        self.but_action.pack(pady=10, ipadx=50, padx=10)
         self.root.bind_all("<Control-o>", self.onclick_seFile)
         self.root.mainloop()
     
