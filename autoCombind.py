@@ -51,7 +51,7 @@ class run_program(GUI):
         else:
             return True
 
-    def combind_loop(self, files, file_index, fileHeader=[], outfile="ไฟล์รวม", passwd=None):
+    def combind_loop(self, files, file_index, fileHeader=[], passwd=None):
         #blankPage = "blank.pdf"
         #blankPage = PdfFileReader(open(blankPage,"rb")).getPage(0)
         print("starting combind...\n")
@@ -268,7 +268,7 @@ class run_program(GUI):
                         return False
             #index_selected = self.listFile.get(0, "end").index(self.insert_index.get())
             #self.listFile.delete(index_selected)
-            saveTo = self.combind_loop(self.listFile.get(0, tkinter.END), self.insert_index.get(), self.fileHeader, self.fileout.get(), passwd=passwdChecked)
+            saveTo = self.combind_loop(self.listFile.get(0, tkinter.END), self.insert_index.get(), self.fileHeader, passwd=passwdChecked)
             if saveTo == "หน้าคั่นไม่เท่ากัน":
                 tkinter.messagebox.showerror("รวมไฟล์","ไม่สามารถรวมไฟล์ได้เนื่องจากจำนวนบทกับจำนวนหน้าไม่เท่ากัน")                
             elif saveTo != None:
