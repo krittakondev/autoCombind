@@ -24,7 +24,9 @@ class GUI():
     def add_frame(self):
         return tkinter.Frame(self.root)
 
-        
+    def info_split(self, fileIn):
+        print(fileIn)
+
     def fileSelect(self):
         return tkinter.filedialog.askopenfilenames(filetypes=[("pdf files", "*.pdf")])
     def mainloop(self):
@@ -174,10 +176,12 @@ class run_program(GUI):
         self.listFile.delete(0, tkinter.END)
         self.insert_index.config(values=self.listFile.get(0, tkinter.END))
         self.insert_index.set("เลือกไฟล์หน้าคั่นบท")
-        self.fileHeader = []
-        self.showHead.config(text="")
+        self.var_opt.set("select function")
+        self.frame_options.forget()
         self.listFile.event_generate("<<UpdateValue>>")
         self.show_numPages.config(text="0 คั่นบท")
+        self.but_action.config(command="")
+
     def get_listFile(self):
         return self.listFile.curselection()
     def set_fileHeader(self):
@@ -244,6 +248,7 @@ class run_program(GUI):
     def delete_selectedList(self):
         self.listFile.delete(self.get_listFile())
         self.listFile.event_generate("<<UpdateValue>>")
+
     def onclick_combind(self):
         try:
             passwdChecked = None
@@ -409,22 +414,42 @@ class run_program(GUI):
         self.menuListFile.add_command(label="open folder", command=lambda: os.startfile(os.path.dirname(self.listFile.get(self.listFile.curselection()))))
         self.menuListFile.add_command(label="delete", command=self.delete_selectedList)
 
+
+    # def loop_split(self, fileIn, ):
+    # 	PdfFileReader.
+
+    def onclick_split(self):
+    	if(len(self.get_listFile()) == 0):
+    		tkinter.messagebox.showerror("การเลือกไฟล์", "คุณยังไม่ได้เลือกไฟล์โปรดเลือกไฟล์ที่ต้องการ")
+    	elif(len(self.get_listFile()) == 1):
+    		print(self.get_listFile())
+
+    	# else:
+    	# 	print(len(self.get_listFile()))
+
     def check_function(self, *args):
+        self.combind_opt.forget()
+        self.split_opt.forget()
         self.frame_options.pack()
         if args[0] == "combind":
             self.combind_opt.pack()
             self.but_action.config(command=self.onclick_combind)
+        elif args[0] == "split":
+            self.split_opt.pack()
+            self.but_action.config(command=self.onclick_split)
+            #self.menuListFile.add_command(label="split", command=lambda: self.info_excel(self.listFile.curselection()))
         else:
-            self.combind_opt.forget()
+            self.frame_options.forget()
             self.but_action.config(command="")
-        if args[0] == "to excel":
-            self.excel_opt.pack()
-        else:
-            self.excel_opt.forget()
             
-    def excel_gui(self):
-        self.excel_opt = tkinter.Frame(self.frame_options)
-        self.excel_opt.pack()
+    def split_gui(self):
+        self.split_opt = tkinter.Frame(self.frame_options)
+        opt_main = tkinter.IntVar()
+        tkinter.Radiobutton(self.split_opt, text="แยกหน้าเท่ากัน", variable=opt_main, value=1).pack()
+        tkinter.Radiobutton(self.split_opt, text="custom pages", variable=opt_main, value=2).pack()
+
+
+        self.split_opt.pack()
 
         
 
@@ -448,14 +473,14 @@ class run_program(GUI):
         
         
         self.listFile = tkinter.Listbox(self.frame_left, width=80)
-        options = ["combind", "to excel"]
+        options = ["combind", "split"]
         self.var_opt = tkinter.StringVar()
         self.var_opt.set("select function")
         self.func_select = tkinter.OptionMenu(self.frame_right, self.var_opt, *options, command=self.check_function)
         self.func_select.pack()
         self.menuRightClick()
         self.combind_gui()
-        self.excel_gui()
+        self.split_gui()
 
         tkinter.Label(self.frame_left, text="ไฟล์แต่ละบท", font=("Courier", 30)).pack()
         self.listFile.pack(side=tkinter.LEFT)
