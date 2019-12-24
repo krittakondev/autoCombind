@@ -25,7 +25,31 @@ class Action:
         #app.GetActiveDoc().GetAVPageView().GoTo(self.acrobat.cur_page+1)
         self.acrobat.GoToPage(self.acrobat.cur_page()+1)
         self.root.event_generate("<<changePage>>")
+    def listToStrFormat(self, inList=[]):
+        if len(inList) == 0:
+            return ""
+        start = inList[0]
+        end = inList[0]
+        total = ""
+        inList = sorted(inList)
 
+        for i in range(len(inList)):
+            if len(inList)-1 != i:
+                if inList[i] == inList[i+1]-1: # ถ้าค่าindexของinList ไปเท่ากับ index ของ inListตัวถัดไป
+                    end = inList[i+1]
+                else:
+                    if start >= end:
+                        total += str(start)+","
+                    else:
+                        total += str(start)+"-"+str(end)+","
+                    start = inList[i+1]
+            else:
+                if start >= end:
+                    total += str(start)+","
+                else:
+                    total += str(start)+"-"+str(end)+","
+
+        return total[:-1]
         
     def down_page(self, event=""):
         #app.GetActiveDoc().GetAVPageView().GoTo(self.acrobat.cur_page+1)
@@ -91,7 +115,8 @@ class Action:
         
 
     def showing(self):
-        listPage = ",".join(map(str, self.list_page))
+        #listPage = ",".join(map(str, self.list_page))
+        listPage = self.listToStrFormat(inList=self.list_page)
         varList = tkinter.StringVar(self.root, value=listPage)
         self.show_list.config(textvariable=varList)
         self.update_list()
