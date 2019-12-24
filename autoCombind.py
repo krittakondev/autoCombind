@@ -17,8 +17,10 @@ from tkinter import simpledialog
 
 class GUI():
     def __init__(self, title):
-        self.root = tkinter.Tk()
-        self.root.title(title)
+        self.main_root = tkinter.Tk()
+        self.root = tkinter.Frame(self.main_root)
+        self.root.pack(expand="yes")
+        self.main_root.title(title)
         #self.root.geometry("300x300")
         
     def add_frame(self):
@@ -517,7 +519,7 @@ class run_program(GUI):
         self.but_action = tkinter.Button(self.frame_menu , text="action")
         self.but_action.pack(pady=10, ipadx=50, padx=10)
         self.root.bind_all("<Control-o>", self.onclick_seFile)
-        self.root.mainloop()
+        self.main_root.mainloop()
     
     #def pageInsert(self):
         

@@ -5,6 +5,7 @@ import time
 import threading
 import multiprocessing
 import pythoncom
+import sys
 
 class Acrobat:
     def __init__(self):
@@ -39,8 +40,8 @@ class Action:
         #app.GetActiveDoc().GetAVPageView().GoTo(curPage-1)
         self.acrobat.GoToPage(self.acrobat.cur_page()-1)
         self.root.event_generate("<<changePage>>")
-    def auto_next(self):
-        self.stop_thread = False
+    def auto_next(self, event=""):
+        self.break_thread = False
         pythoncom.CoInitialize()
         self.root.event_generate("<<changePage>>")
         app = Dispatch("AcroExch.app")
@@ -51,11 +52,14 @@ class Action:
         #print(numPages)
         #while(True):
             app.GetActiveDoc().GetAVPageView().GoTo(i)
-            varPage = tkinter.StringVar(self.root, value=str(i))
+            varPage = tkinter.StringVar(self.root, value=str(i+1))
             self.entCurPage.config(textvariable=varPage)
-            if self.stop_thread == True:
-            	break
+            if self.break_thread == True:
+            	self.status_run.config(text="status: not auto", fg="red")
+            	sys.exit()
             time.sleep(sec)
+        self.status_run.config(text="status: last page", fg="red")
+        self.but_auto.config(text="start auto", fg="green")
         
     def test():
         print("testing")
@@ -98,9 +102,23 @@ class Action:
         self._stop_event = threading.Event()
         self.thread_next = threading.Thread(name='auto_next', target=self.auto_next)
         self.thread_next.start()
+    def check_thread(self, event=""):
+        try:
+    	    if self.thread_next.is_alive() == True:
+    	    	self.stop_thread()
+    	    	self.status_run.config( text="status: not auto", fg="red")
+    	    	self.but_auto.config(text="start auto", fg="green")
+    	    else:
+    	    	self.start_thread()
+    	    	self.status_run.config(text="status: auto", fg="green")
+    	    	self.but_auto.config(text="stop auto", fg="red")
+        except AttributeError:
+        	self.start_thread()
+        	self.status_run.config(text="status: auto", fg="green")
+        	self.but_auto.config(text="stop auto", fg="red")
 
-    def stop_thread(self):
-    	self.stop_thread = True
+    def stop_thread(self, event=""):
+    	self.break_thread = True
 
     def EnterPage(self, event=""):
         self.acrobat.GoToPage(int(self.entCurPage.get())-1)
@@ -118,20 +136,25 @@ class Action:
         self.entCurPage.pack(side="right")
 
         self.update_page()
-        
-        tkinter.Button(self.root, text="auto next", command=self.start_thread).pack()
-        self.sec = tkinter.Entry(self.root, width=5)
+       	self.status_run = tkinter.Label(self.root, text="status: not auto", fg="red")
+       	self.status_run.pack(side="left")
+        self.but_auto = tkinter.Button(self.root, text="start auto",fg="green", command=self.check_thread)
+        self.but_auto.pack()
+        sec_var = tkinter.StringVar()
+        sec_var.set("0")
+        self.sec = tkinter.Entry(self.root, width=5,textvariable=sec_var)
         self.sec.pack()
         tkinter.Label(self.root, text="sec").pack()
         self.root.bind("<Alt-a>", self.add_list)
         self.root.bind("<Alt-c>", self.clear_list)
         self.root.bind("<Alt-d>", self.remove_cur)
+        self.root.bind("<Alt-s>", self.check_thread)
         self.root.bind("<Left>", self.prev_page)
         self.root.bind("<Right>", self.next_page)
         self.root.bind("<Up>", self.up_page)
         self.root.bind("<Down>", self.down_page)
         self.root.bind("<<update_list>>", self.update_list)
-        tkinter.Button(self.root, text="stop", command=self.stop_thread).pack()
+        #tkinter.Button(self.root, text="stop", command=self.stop_thread).pack()
 
         
         self.root.attributes("-topmost", True)
