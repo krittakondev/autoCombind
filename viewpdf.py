@@ -4,6 +4,7 @@ from win32com.client.dynamic import Dispatch
 import time
 import threading
 import multiprocessing
+import pythoncom
 
 class Acrobat:
     def __init__(self):
@@ -39,13 +40,20 @@ class Action:
         self.acrobat.GoToPage(self.acrobat.cur_page()-1)
         self.root.event_generate("<<changePage>>")
     def auto_next(self):
+        self.stop_thread = False
+        pythoncom.CoInitialize()
         self.root.event_generate("<<changePage>>")
-        numPages = self.acrobat.numPages()
-        cur = self.acrobat.cur_page()
+        app = Dispatch("AcroExch.app")
+        numPages = app.GetActiveDoc().GetPDDoc().GetNumPages()
+        cur = app.GetActiveDoc().GetAVPageView().GetPageNum()
         for i in range(cur, numPages):
         #print(numPages)
         #while(True):
-            self.acrobat.GoToPage(i)
+            app.GetActiveDoc().GetAVPageView().GoTo(i)
+            varPage = tkinter.StringVar(self.root, value=str(i))
+            self.entCurPage.config(textvariable=varPage)
+            if self.stop_thread == True:
+            	break
             time.sleep(0.2)
         
     def test():
@@ -65,7 +73,7 @@ class Action:
             self.list_page = sorted(self.list_page)
         self.showing()
     def start_process(self):
-        self.process = multiprocessing.Process(target=self.test, args=())
+        self.process = multiprocessing.Process(target=self.auto_next)
         self.process.start()
     def stop_process(self):
         self.process.terminate()
@@ -86,9 +94,13 @@ class Action:
     def update_list(self, event=""):
         self.show_numList.config(text=len(self.list_page))
     def start_thread(self):
-        e = threading.Event()
-        self.thread_next = threading.Thread(name='auto_next', target=self.auto_next, args=(e, ))
+        self._stop_event = threading.Event()
+        self.thread_next = threading.Thread(name='auto_next', target=self.auto_next)
         self.thread_next.start()
+
+    def stop_thread(self):
+    	self.stop_thread = True
+
     def EnterPage(self, event=""):
         self.acrobat.GoToPage(int(self.entCurPage.get())-1)
     def main_frame(self):
@@ -106,7 +118,7 @@ class Action:
 
         self.update_page()
         
-        tkinter.Button(self.root, text="auto next", command=self.start_process).pack()
+        tkinter.Button(self.root, text="auto next", command=self.start_thread).pack()
         self.root.bind("<Alt-a>", self.add_list)
         self.root.bind("<Alt-c>", self.clear_list)
         self.root.bind("<Alt-d>", self.remove_cur)
@@ -115,7 +127,7 @@ class Action:
         self.root.bind("<Up>", self.up_page)
         self.root.bind("<Down>", self.down_page)
         self.root.bind("<<update_list>>", self.update_list)
-        tkinter.Button(self.root, text="stop", command=self.stop_process).pack()
+        tkinter.Button(self.root, text="stop", command=self.stop_thread).pack()
 
         
         self.root.attributes("-topmost", True)
