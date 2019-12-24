@@ -46,6 +46,7 @@ class Action:
         app = Dispatch("AcroExch.app")
         numPages = app.GetActiveDoc().GetPDDoc().GetNumPages()
         cur = app.GetActiveDoc().GetAVPageView().GetPageNum()
+        sec = float(self.sec.get())
         for i in range(cur, numPages):
         #print(numPages)
         #while(True):
@@ -54,7 +55,7 @@ class Action:
             self.entCurPage.config(textvariable=varPage)
             if self.stop_thread == True:
             	break
-            time.sleep(0.2)
+            time.sleep(sec)
         
     def test():
         print("testing")
@@ -119,6 +120,9 @@ class Action:
         self.update_page()
         
         tkinter.Button(self.root, text="auto next", command=self.start_thread).pack()
+        self.sec = tkinter.Entry(self.root, width=5)
+        self.sec.pack()
+        tkinter.Label(self.root, text="sec").pack()
         self.root.bind("<Alt-a>", self.add_list)
         self.root.bind("<Alt-c>", self.clear_list)
         self.root.bind("<Alt-d>", self.remove_cur)
