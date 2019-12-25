@@ -6,6 +6,7 @@ import threading
 import multiprocessing
 import pythoncom
 import sys
+from tkinter import ttk
 
 class Acrobat:
     def __init__(self):
@@ -81,7 +82,8 @@ class Action:
             if self.break_thread == True:
             	self.status_run.config(text="status: not auto", fg="red")
             	sys.exit()
-            time.sleep(sec)
+            time.sleep(float(self.sec.get())
+)
         self.status_run.config(text="status: last page", fg="red")
         self.but_auto.config(text="start auto", fg="green")
         
@@ -167,17 +169,18 @@ class Action:
         self.but_auto.pack()
         sec_var = tkinter.StringVar()
         sec_var.set("0")
-        self.sec = tkinter.Entry(self.root, width=5,textvariable=sec_var)
+        self.sec = ttk.Spinbox(self.root, width=5, from_=0, to=10, increment=0.1)
+        self.sec.set(0)
         self.sec.pack()
         tkinter.Label(self.root, text="sec").pack()
         self.root.bind("<Alt-a>", self.add_list)
         self.root.bind("<Alt-c>", self.clear_list)
         self.root.bind("<Alt-d>", self.remove_cur)
         self.root.bind("<Alt-s>", self.check_thread)
-        self.root.bind("<Left>", self.prev_page)
-        self.root.bind("<Right>", self.next_page)
-        self.root.bind("<Up>", self.up_page)
-        self.root.bind("<Down>", self.down_page)
+        self.root.bind("<Alt-Left>", self.prev_page)
+        self.root.bind("<Alt-Right>", self.next_page)
+        self.root.bind("<Alt-Up>", self.up_page)
+        self.root.bind("<Alt-Down>", self.down_page)
         self.root.bind("<<update_list>>", self.update_list)
         #tkinter.Button(self.root, text="stop", command=self.stop_thread).pack()
 
