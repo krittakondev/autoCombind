@@ -1,3 +1,5 @@
+# เขียนให้getหน้าได้ต่างๆได้ และ สามารถเอาหน้าที่getไเ้ ไปทำบางอย่างได้
+
 import tkinter
 from tkinter import Tk
 from win32com.client.dynamic import Dispatch
