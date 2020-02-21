@@ -1,5 +1,5 @@
 # เขียนให้getหน้าได้ต่างๆได้ และ สามารถเอาหน้าที่getไเ้ ไปทำบางอย่างได้
-# เขียนให้มันdetectหน้าสีได้ 
+# เขียนให้มันdetectหน้าสีได้
 
 import tkinter
 from tkinter import Tk
@@ -25,6 +25,24 @@ class Action:
     list_page = []
     def __init__(self):
         self.acrobat = Acrobat()
+
+    def close2(self, num):
+        for i in range(len(self.list_page)):
+            if num in self.list_page:
+                if self.list_page[i] == num:
+                    return [i-1, i+1]
+            else:
+                if self.list_page[i] > num and self.list_page[i+1] < num:
+                    return [i, i+1]
+    def next_list(self, event=""):
+        #curPage = app.GetActiveDoc().GetAVPageView().GetPageNum()
+        #app.GetActiveDoc().GetAVPageView().GoTo(curPage-1)
+        cur = self.acrobat.cur_page()+1
+        toPage = self.close2(cur)
+        if toPage[1] == len(self.list_page):
+            toPage[1] = 0
+        self.acrobat.GoToPage(self.list_page[toPage[1]]-1)
+        self.root.event_generate("<<changePage>>")
     def next_page(self, event=""):
         #app.GetActiveDoc().GetAVPageView().GoTo(self.acrobat.cur_page+1)
         self.acrobat.GoToPage(self.acrobat.cur_page()+1)
@@ -54,7 +72,6 @@ class Action:
                     total += str(start)+"-"+str(end)+","
 
         return total[:-1]
-        
     def down_page(self, event=""):
         #app.GetActiveDoc().GetAVPageView().GoTo(self.acrobat.cur_page+1)
         self.acrobat.GoToPage(self.acrobat.cur_page()+2)
@@ -67,6 +84,13 @@ class Action:
         #curPage = app.GetActiveDoc().GetAVPageView().GetPageNum()
         #app.GetActiveDoc().GetAVPageView().GoTo(curPage-1)
         self.acrobat.GoToPage(self.acrobat.cur_page()-1)
+        self.root.event_generate("<<changePage>>")
+    def prev_list(self, event=""):
+        #curPage = app.GetActiveDoc().GetAVPageView().GetPageNum()
+        #app.GetActiveDoc().GetAVPageView().GoTo(curPage-1)
+        cur = self.acrobat.cur_page()+1
+        toPage = self.close2(cur)
+        self.acrobat.GoToPage(self.list_page[toPage[0]]-1)
         self.root.event_generate("<<changePage>>")
     def auto_next(self, event=""):
         self.break_thread = False
@@ -85,11 +109,10 @@ class Action:
             if self.break_thread == True:
             	self.status_run.config(text="status: not auto", fg="red")
             	sys.exit()
-            time.sleep(float(self.sec.get())
-)
+            time.sleep(float(self.sec.get()))
         self.status_run.config(text="status: last page", fg="red")
         self.but_auto.config(text="start auto", fg="green")
-        
+
     def test():
         print("testing")
     def add_list(self, event):
@@ -111,13 +134,13 @@ class Action:
         self.process.start()
     def stop_process(self):
         self.process.terminate()
-        
-        
+
+
     def update_page(self, event=""):
         #if self.entCurPage.get() != str(self.acrobat.cur_page()):
         varPage = tkinter.StringVar(self.root, value=str(self.acrobat.cur_page()+1))
         self.entCurPage.config(textvariable=varPage)
-        
+
 
     def showing(self):
         #listPage = ",".join(map(str, self.list_page))
@@ -125,7 +148,7 @@ class Action:
         varList = tkinter.StringVar(self.root, value=listPage)
         self.show_list.config(textvariable=varList)
         self.update_list()
-        
+
     def update_list(self, event=""):
         self.show_numList.config(text=len(self.list_page))
     def start_thread(self):
@@ -161,8 +184,8 @@ class Action:
         self.show_numList = tkinter.Label(text=len(self.list_page), fg="red")
         self.entCurPage.bind("<Return>", self.EnterPage)
 
-        self.root.bind("<<changePage>>", self.update_page)    
-        
+        self.root.bind("<<changePage>>", self.update_page)
+
         self.entCurPage.pack(side="right")
 
         self.update_page()
@@ -185,9 +208,11 @@ class Action:
         self.root.bind("<Alt-Up>", self.up_page)
         self.root.bind("<Alt-Down>", self.down_page)
         self.root.bind("<<update_list>>", self.update_list)
+        self.root.bind("<Control-Left>", self.prev_list)
+        self.root.bind("<Control-Right>", self.next_list)
         #tkinter.Button(self.root, text="stop", command=self.stop_thread).pack()
 
-        
+
         self.root.attributes("-topmost", True)
 
         self.show_list = tkinter.Entry(self.root, width=50)
@@ -198,5 +223,5 @@ class Action:
 
 if __name__ == "__main__":
     obj = Action()
-    
+
     obj.main_frame()
