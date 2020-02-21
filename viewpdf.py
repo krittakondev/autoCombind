@@ -32,7 +32,7 @@ class Action:
                 if self.list_page[i] == num:
                     return [i-1, i+1]
             else:
-                if self.list_page[i] > num and self.list_page[i+1] < num:
+                if self.list_page[i] < num and self.list_page[i+1] > num:
                     return [i, i+1]
     def next_list(self, event=""):
         #curPage = app.GetActiveDoc().GetAVPageView().GetPageNum()
