@@ -186,8 +186,9 @@ class Action:
         icon_data = base64.b64decode(myIcon)
         if os.path.isdir("/tmp") == False:
             os.mkdir("/tmp")
-        with open("/tmp/myicon.ico", "wb") as w_icon:
-            w_icon.write(icon_data)
+            if os.path.isfile("/tmp/myicon.ico"):
+                with open("/tmp/myicon.ico", "wb") as w_icon:
+                    w_icon.write(icon_data)
 
         self.root.iconbitmap("/tmp/myicon.ico")
         #tkinter.Button(self.root, text="prev", command=self.prev_page).pack()
