@@ -1,4 +1,5 @@
 # เขียนให้getหน้าได้ต่างๆได้ และ สามารถเอาหน้าที่getไเ้ ไปทำบางอย่างได้
+# เขียนให้มันdetectหน้าสีได้ 
 
 import tkinter
 from tkinter import Tk
@@ -157,7 +158,7 @@ class Action:
         #tkinter.Button(self.root, text="next", command=self.next_page).pack()
 
         self.entCurPage = tkinter.Entry(self.root, width=5)
-        self.show_numList = tkinter.Label(text=len(self.list_page))
+        self.show_numList = tkinter.Label(text=len(self.list_page), fg="red")
         self.entCurPage.bind("<Return>", self.EnterPage)
 
         self.root.bind("<<changePage>>", self.update_page)    
