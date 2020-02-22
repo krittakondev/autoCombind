@@ -128,6 +128,7 @@ class Action:
         if self.acrobat.cur_page()+1 not in self.list_page:
             self.list_page.append(self.acrobat.cur_page()+1)
             self.not_page.remove(self.acrobat.cur_page()+1)
+            self.not_page = sorted(self.not_page)
             self.list_page = sorted(self.list_page)
         self.showing()
     def clear_list(self, event):
@@ -139,6 +140,7 @@ class Action:
         if self.acrobat.cur_page()+1 in self.list_page:
             self.list_page.remove(self.acrobat.cur_page()+1)
             self.not_page.append(self.acrobat.cur_page()+1)
+            self.not_page = sorted(self.not_page)
             self.list_page = sorted(self.list_page)
         self.showing()
     def start_process(self):
@@ -158,9 +160,14 @@ class Action:
         #listPage = ",".join(map(str, self.list_page))
 
         # self.not_page = sorted(self.not_page)
-        listPage = self.listToStrFormat(inList=self.list_page)
-        varList = tkinter.StringVar(self.root, value=listPage)
-        self.show_list.config(textvariable=varList)
+        if self.switch.get() == 1:
+            listPage = self.listToStrFormat(inList=self.not_page)
+            varList = tkinter.StringVar(self.root, value=listPage)
+            self.show_list.config(textvariable=varList)
+        else:
+            listPage = self.listToStrFormat(inList=self.list_page)
+            varList = tkinter.StringVar(self.root, value=listPage)
+            self.show_list.config(textvariable=varList)
         print("list_page", self.list_page)
         print("not_page", self.not_page)
         self.update_list()
@@ -191,6 +198,8 @@ class Action:
 
     def EnterPage(self, event=""):
         self.acrobat.GoToPage(int(self.entCurPage.get())-1)
+
+
     def main_frame(self):
         self.root = Tk()
         #tkinter.Button(self.root, text="prev", command=self.prev_page).pack()
@@ -230,7 +239,8 @@ class Action:
 
 
         self.root.attributes("-topmost", True)
-
+        self.switch = tkinter.IntVar()
+        tkinter.Checkbutton(self.root, text="switch", variable=self.switch, command=self.showing).pack()
         self.show_list = tkinter.Entry(self.root, width=50)
         self.show_numList.pack(side="right")
         self.show_list.pack()
