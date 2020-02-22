@@ -23,13 +23,16 @@ class Acrobat:
 
 class Action:
     list_page = []
+    not_page = []
     def __init__(self):
         self.acrobat = Acrobat()
+        [self.not_page.append(i) for i in range(1,self.acrobat.numPages()+1)]
+        #print(self.not_page)
 
-    def close2(self, num):
-        for i in range(len(self.list_page)):
-            if num in self.list_page:
-                if self.list_page[i] == num:
+    def close2(self, num, list_page):
+        for i in range(len(list_page)):
+            if num in list_page:
+                if list_page[i] == num:
                     return [i-1, i+1]
             else:
                 if self.list_page[i] < num and self.list_page[i+1] > num:
@@ -38,7 +41,10 @@ class Action:
         #curPage = app.GetActiveDoc().GetAVPageView().GetPageNum()
         #app.GetActiveDoc().GetAVPageView().GoTo(curPage-1)
         cur = self.acrobat.cur_page()+1
-        toPage = self.close2(cur)
+        try:
+            toPage = self.close2(cur, self.list_page)
+        except:
+            toPage = [0, -1]
         if toPage[1] == len(self.list_page):
             toPage[1] = 0
         self.acrobat.GoToPage(self.list_page[toPage[1]]-1)
@@ -89,8 +95,11 @@ class Action:
         #curPage = app.GetActiveDoc().GetAVPageView().GetPageNum()
         #app.GetActiveDoc().GetAVPageView().GoTo(curPage-1)
         cur = self.acrobat.cur_page()+1
-        toPage = self.close2(cur)
-        self.acrobat.GoToPage(self.list_page[toPage[0]]-1)
+        try:
+            toPage = self.close2(cur, self.list_page)
+        except:
+            toPage = [-1, 0]
+        self.acrobat.GoToPage(self.list_page[toPage[0]]-1)   # <<<<<<<<<<<<<<<<<<<<<<<<<<
         self.root.event_generate("<<changePage>>")
     def auto_next(self, event=""):
         self.break_thread = False
@@ -118,15 +127,18 @@ class Action:
     def add_list(self, event):
         if self.acrobat.cur_page()+1 not in self.list_page:
             self.list_page.append(self.acrobat.cur_page()+1)
+            self.not_page.remove(self.acrobat.cur_page()+1)
             self.list_page = sorted(self.list_page)
         self.showing()
-        print(self.list_page)
     def clear_list(self, event):
         self.list_page = []
+        self.not_page = []
+        [self.not_page.append(i) for i in range(1,self.acrobat.numPages()+1)]
         self.showing()
     def remove_cur(self, event):
         if self.acrobat.cur_page()+1 in self.list_page:
             self.list_page.remove(self.acrobat.cur_page()+1)
+            self.not_page.append(self.acrobat.cur_page()+1)
             self.list_page = sorted(self.list_page)
         self.showing()
     def start_process(self):
@@ -144,9 +156,13 @@ class Action:
 
     def showing(self):
         #listPage = ",".join(map(str, self.list_page))
+
+        # self.not_page = sorted(self.not_page)
         listPage = self.listToStrFormat(inList=self.list_page)
         varList = tkinter.StringVar(self.root, value=listPage)
         self.show_list.config(textvariable=varList)
+        print("list_page", self.list_page)
+        print("not_page", self.not_page)
         self.update_list()
 
     def update_list(self, event=""):
