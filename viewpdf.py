@@ -10,6 +10,7 @@ import multiprocessing
 import pythoncom
 import sys
 from tkinter import ttk
+from tkinter import messagebox
 
 class Acrobat:
     def __init__(self):
@@ -22,10 +23,12 @@ class Acrobat:
         self.app.GetActiveDoc().GetAVPageView().GoTo(To)
 
 class Action:
-    list_page = []
-    not_page = []
-    def __init__(self):
+
+    def __init__(self, title="viewPDF"):
+        self.list_page = []
+        self.not_page = []
         self.acrobat = Acrobat()
+        self.titleWin = title
         [self.not_page.append(i) for i in range(1,self.acrobat.numPages()+1)]
         #print(self.not_page)
 
@@ -220,13 +223,14 @@ class Action:
         self.acrobat.GoToPage(int(self.entCurPage.get())-1)
 
 
-    def main_frame(self):
-        self.root = Tk()
+    def main_frame(self, parent=""):
+        self.root = tkinter.Toplevel(parent)
+        self.root.title(self.titleWin)
         #tkinter.Button(self.root, text="prev", command=self.prev_page).pack()
         #tkinter.Button(self.root, text="next", command=self.next_page).pack()
 
         self.entCurPage = tkinter.Entry(self.root, width=5)
-        self.show_numList = tkinter.Label(text=len(self.list_page), fg="red")
+        self.show_numList = tkinter.Label(self.root, text=len(self.list_page), fg="red")
         self.entCurPage.bind("<Return>", self.EnterPage)
 
         self.root.bind("<<changePage>>", self.update_page)
@@ -267,7 +271,23 @@ class Action:
     #def run(self):
         self.root.mainloop()
 
-if __name__ == "__main__":
-    obj = Action()
+class MainMenu:
+    def __init__(self):
+        self.main_gui = tkinter.Tk()
+        self.main_gui.attributes("-topmost", True)
+        # obj = Action()
+        self.main_gui.geometry("300x200")
+        self.main_gui.title("AAA fucntion")
+        ttk.Button(self.main_gui, text="new", command=self.newView).pack()
+        self.main_gui.mainloop()
 
-    obj.main_frame()
+        # obj.main_frame()
+    def newView(self):
+        try:
+            Action().main_frame(self.main_gui)
+        except AttributeError:
+            messagebox.showerror("ผิดพลาด", 'โปรดเปิดไฟล์ที่ต้องการใช้ ด้วยโปรแกรมAcrobat ค้างไว้')
+
+
+if __name__ == "__main__":
+    MainMenu()
