@@ -37,27 +37,7 @@ class Action:
             else:
                 if self.list_page[i] < num and self.list_page[i+1] > num:
                     return [i, i+1]
-    def next_list(self, event=""):
-        #curPage = app.GetActiveDoc().GetAVPageView().GetPageNum()
-        #app.GetActiveDoc().GetAVPageView().GoTo(curPage-1)
-        cur = self.acrobat.cur_page()+1
-        if self.switch.get() == 1:
 
-            try:
-                toPage = self.close2(cur, self.not_page)
-            except:
-                toPage = [0, 0]
-            if toPage[1] == len(self.not_page):
-                toPage[1] = 0
-        else:
-            try:
-                toPage = self.close2(cur, self.list_page)
-            except:
-                toPage = [0, 0]
-            if toPage[1] == len(self.list_page):
-                toPage[1] = 0
-        self.acrobat.GoToPage(self.not_page[toPage[1]]-1)
-        self.root.event_generate("<<changePage>>")
     def next_page(self, event=""):
         #app.GetActiveDoc().GetAVPageView().GoTo(self.acrobat.cur_page+1)
         self.acrobat.GoToPage(self.acrobat.cur_page()+1)
@@ -100,6 +80,29 @@ class Action:
         #app.GetActiveDoc().GetAVPageView().GoTo(curPage-1)
         self.acrobat.GoToPage(self.acrobat.cur_page()-1)
         self.root.event_generate("<<changePage>>")
+    def next_list(self, event=""):
+        #curPage = app.GetActiveDoc().GetAVPageView().GetPageNum()
+        #app.GetActiveDoc().GetAVPageView().GoTo(curPage-1)
+        cur = self.acrobat.cur_page()+1
+        if self.switch.get() == 1:
+
+            try:
+                toPage = self.close2(cur, self.not_page)
+            except:
+                toPage = [-1, 0]
+            if toPage[1] == len(self.not_page):
+                toPage[1] = 0
+            self.acrobat.GoToPage(self.not_page[toPage[1]]-1)
+        else:
+            try:
+                toPage = self.close2(cur, self.list_page)
+            except:
+                toPage = [-1, 0]
+            if toPage[1] == len(self.list_page):
+                toPage[1] = 0
+            self.acrobat.GoToPage(self.list_page[toPage[1]]-1)
+        self.root.event_generate("<<changePage>>")
+
     def prev_list(self, event=""):
         #curPage = app.GetActiveDoc().GetAVPageView().GetPageNum()
         #app.GetActiveDoc().GetAVPageView().GoTo(curPage-1)
@@ -108,13 +111,14 @@ class Action:
             try:
                 toPage = self.close2(cur, self.not_page)
             except:
-                toPage = [0, 0]
+                toPage = [-1, 0]
             self.acrobat.GoToPage(self.not_page[toPage[0]]-1)
         else:
             try:
                 toPage = self.close2(cur, self.list_page)
             except:
-                toPage = [0, 0]
+                toPage = [-1, 0]
+            print(toPage)
             self.acrobat.GoToPage(self.list_page[toPage[0]]-1)
         self.root.event_generate("<<changePage>>")
     def auto_next(self, event=""):
