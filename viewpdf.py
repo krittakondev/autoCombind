@@ -11,6 +11,7 @@ import pythoncom
 import sys
 from tkinter import ttk
 from tkinter import messagebox
+from tkinter import simpledialog
 
 class Acrobat:
     def __init__(self):
@@ -274,20 +275,28 @@ class Action:
 class MainMenu:
     def __init__(self):
         self.main_gui = tkinter.Tk()
+        self.main_gui.protocol("WM_DELETE_WINDOW", self.confirmClose)
         self.main_gui.attributes("-topmost", True)
         # obj = Action()
-        self.main_gui.geometry("300x200")
+        self.main_gui.geometry("200x50")
         self.main_gui.title("AAA fucntion")
         ttk.Button(self.main_gui, text="new", command=self.newView).pack()
         self.main_gui.mainloop()
 
         # obj.main_frame()
     def newView(self):
-        try:
-            Action().main_frame(self.main_gui)
-        except AttributeError:
-            messagebox.showerror("ผิดพลาด", 'โปรดเปิดไฟล์ที่ต้องการใช้ ด้วยโปรแกรมAcrobat ค้างไว้')
+        name = simpledialog.askstring("ใส่ชื่อสำหรับหน้าต่าง", "name window?",
+                                parent=self.main_gui)
+        if name != None:
+            try:
+                Action(title=name).main_frame(self.main_gui)
+            except AttributeError:
+                messagebox.showerror("ผิดพลาด", 'โปรดเปิดไฟล์ที่ต้องการใช้ ด้วยโปรแกรมAcrobat ค้างไว้')
 
+    def confirmClose(self):
+        ask = messagebox.askyesno("ถามก่อนปิดโปรแกรม", "ต้องปิดโปรแกรมนี้จริงหรือไม่หากปิด โปรแกรมจะปิดตัวที่เปิดค้างอยู่คั้งหมด", icon="warning")
+        if ask:
+            self.main_gui.destroy()
 
 if __name__ == "__main__":
     MainMenu()
