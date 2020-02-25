@@ -46,10 +46,13 @@ class Action:
                 if list_page[i] == num:
                     return [i-1, i+1]
             else:
-                if self.list_page[i] < num and self.list_page[i+1] > num:
-                    return [i, i+1]
-                if num < listPage[0]:
-                    return [len(listPage), 0]
+                try:
+                    if self.list_page[i] < num and self.list_page[i+1] > num:
+                        return [i, i+1]
+                    elif num < list_page[0]:
+                        return [len(list_page), 0]
+                except IndexError:
+                    return [i, 0]
 
     def saveList(self, event=""):
         if self.switch.get() != 1:
@@ -127,20 +130,11 @@ class Action:
         cur = self.acrobat.cur_page()+1
         if self.switch.get() == 1:
 
-            try:
-                toPage = self.close2(cur, self.not_page)
-            except:
-                toPage = [-1, 0]
-            if toPage[1] == len(self.not_page):
-                toPage[1] = 0
+            toPage = self.close2(cur, self.not_page)
+
             self.acrobat.GoToPage(self.not_page[toPage[1]]-1)
         else:
-            try:
-                toPage = self.close2(cur, self.list_page)
-            except:
-                toPage = [-1, 0]
-            if toPage[1] == len(self.list_page):
-                toPage[1] = 0
+            toPage = self.close2(cur, self.list_page)
             self.acrobat.GoToPage(self.list_page[toPage[1]]-1)
         self.root.event_generate("<<changePage>>")
 
@@ -149,17 +143,11 @@ class Action:
         #app.GetActiveDoc().GetAVPageView().GoTo(curPage-1)
         cur = self.acrobat.cur_page()+1
         if self.switch.get() == 1:
-            try:
-                toPage = self.close2(cur, self.not_page)
-            except:
-                toPage = [-1, 0]
+            toPage = self.close2(cur, self.not_page)
+
             self.acrobat.GoToPage(self.not_page[toPage[0]]-1)
         else:
-            try:
-                toPage = self.close2(cur, self.list_page)
-            except:
-                toPage = [-1, 0]
-            print(toPage)
+            toPage = self.close2(cur, self.list_page)
             self.acrobat.GoToPage(self.list_page[toPage[0]]-1)
         self.root.event_generate("<<changePage>>")
     def auto_next(self, event=""):
@@ -229,8 +217,6 @@ class Action:
             listPage = self.listToStrFormat(inList=self.list_page)
             varList = tkinter.StringVar(self.root, value=listPage)
             self.show_list.config(textvariable=varList)
-        print("list_page", self.list_page)
-        print("not_page", self.not_page)
         self.update_list()
 
     def update_list(self, event=""):
