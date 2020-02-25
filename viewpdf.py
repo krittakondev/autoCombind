@@ -303,8 +303,8 @@ class Action:
         self.root.bind("<Alt-Up>", self.up_page)
         self.root.bind("<Alt-Down>", self.down_page)
         self.root.bind("<<update_list>>", self.update_list)
-        self.root.bind("<Control-Left>", self.prev_list)
-        self.root.bind("<Control-Right>", self.next_list)
+        self.root.bind("<Alt-Shift-Left>", self.prev_list)
+        self.root.bind("<Alt-Shift-Right>", self.next_list)
         #tkinter.Button(self.root, text="stop", command=self.stop_thread).pack()
 
 
