@@ -46,8 +46,21 @@ class Action:
                 if list_page[i] == num:
                     return [i-1, i+1]
             else:
+                if num < listPage[0]:
+                    return [len[listPage], 0]
                 if self.list_page[i] < num and self.list_page[i+1] > num:
                     return [i, i+1]
+
+    def saveList(self, event=""):
+        if self.switch.get() != 1:
+            print("mark saved")
+            self.list_page = self.stringToList(self.show_list.get())
+            self.not_page = []
+            for i in range(1,self.acrobat.numPages()+1):
+                if i not in self.list_page and i not in self.not_page:
+                    self.not_page.append(i)
+
+        self.showing()
 
     def next_page(self, event=""):
         #app.GetActiveDoc().GetAVPageView().GoTo(self.acrobat.cur_page+1)
@@ -78,6 +91,23 @@ class Action:
                     total += str(start)+"-"+str(end)+","
 
         return total[:-1]
+
+    def stringToList(self,strList):
+        listPage = []
+        if len(strList) == 0:
+            return []
+        listSplit = strList.split(",")
+        for i in listSplit:
+            if "-" in i:
+                splitRange = i.split("-")
+                for i in range(int(splitRange[0]), int(splitRange[1])+1):
+                    if i not in listSplit:
+                        listPage.append(i)
+            else:
+                if int(i) not in listPage:
+                    listPage.append(int(i))
+        listPage = sorted(listPage)
+        return listPage
     def down_page(self, event=""):
         #app.GetActiveDoc().GetAVPageView().GoTo(self.acrobat.cur_page+1)
         self.acrobat.GoToPage(self.acrobat.cur_page()+2)
@@ -282,6 +312,7 @@ class Action:
         self.switch = tkinter.IntVar()
         tkinter.Checkbutton(self.root, text="switch", variable=self.switch, command=self.showing).pack()
         self.show_list = tkinter.Entry(self.root, width=50)
+        self.show_list.bind("<Control-s>", self.saveList)
         self.show_numList.pack(side="right")
         self.show_list.pack()
     #def run(self):
