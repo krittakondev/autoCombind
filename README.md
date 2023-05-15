@@ -32,7 +32,7 @@ python3 autoCombind.py
 * **เข้ารหัส** อันนี้ไว้สำหรับล๊อคไฟล์ได้ เวลาเปิดก็ต้องใส่รหัส
 
 ## screenshot
-![screenshot](https://lh3.googleusercontent.com/-K8rRqdXC9hA/X6VfUL7GAMI/AAAAAAAAKp0/hQ9IZ0fzQnc1DtLoTdTkLF1_5-A-94AuACLcBGAsYHQ/w494-h231/image.png)
+![screenshot](https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjB0W0IKC-qh_8wcvsasjj3XTWWbm5LG2ZXVgnQ-g-nZWr-0uH0EVQPBsy64pQe0rMbJKmpGQIqJFj2uakOsWDIsq1LRQmCS2hsvOeJm8ezrDrD0ZJO6S8104UTO3XlZhpt7AZcOciVSSUWbQ6tOKFvruV-qryipqGObZkgfZGY1TFn9Kj4eLZmfpNW/s1948/Screenshot%202566-05-15%20at%2023.58.35.png)
 
 ## ref
 [อ่านเพิ่มเติม](https://blog.9krit.dev/p/pdf.html)
