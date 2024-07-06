@@ -2,7 +2,7 @@ adb-shell==0.4.3
 appdirs==1.4.4
 blis==0.7.9
 catalogue==2.0.8
-certifi==2023.7.22
+certifi==2024.7.4
 cffi==1.15.1
 charset-normalizer==3.0.1
 click==8.1.3
